@@ -1,5 +1,3 @@
-
-
 # RESTGuide
 
 *An opinionated guide on how to build a RESTful API in with Node.js and Express*
@@ -24,6 +22,7 @@ The article is intended for everyone (beginner or not) who wants to build a read
  - [Best practices](#best-practices)
  - [A sample project structure](#a-sample-project-structure)
  - [Build a RESTful API in Express from scratch](#build-a-restful-api-in-express-from-scratch)
+ - [References](#references)
 
 ## Definitions
 
