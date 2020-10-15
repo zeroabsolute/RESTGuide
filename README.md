@@ -1,3 +1,4 @@
+
 # RESTGuide
 
 *An opinionated guide on how to build a RESTful API in with Node.js and Express*
@@ -6,12 +7,13 @@ Gerald Haxhi<br />
 Softup Technologies<br />
 2020<br />
 
-## Introduction
+# Introduction
+
 This is a short guide on how to set up a Node.js project with Express and start building a RESTful API. The structure of the boilerplate and the practices that are suggested here are entirely opinion-based and as such, they can be subject to debate and improvement. Most of the content, however, is heavily influenced by many articles (which are mentioned in the [References](#references) section) from Paypal, Microsoft, Swagger, and the REST dissertation itself from Roy Thomas Fielding.<br /><br />
 The article is organized in many sections, starting with a short introduction to HTTP and REST architecture and then moving on to more specific topics related to RESTful design best practices. The final parts suggest one way how a Node.js Express API can be structured and a step-by-step example on how to set up a project and start writing some simple endpoints.<br /><br />
 The article is intended for everyone (beginner or not) who wants to build a readable, usable, performant, scalable, and easy-to-use API in Node.js with Express.  
 
-## Table of contents
+# Table of contents
 
  - [Definitions](#definitions)
  - [HTTP and REST](#http-and-rest)
@@ -23,12 +25,30 @@ The article is intended for everyone (beginner or not) who wants to build a read
       - [Representations](#representations)
       - [HTTP methods](#http-methods)
  - [Guides](#guides)
+   - [Summary of REST and HTTP main concepts](#summary-of-rest-and-http-main-concepts)
+     - [Methods](#methods)
+     - [Headers](#headers)
+     - [Status codes](#status-codes)
+   - [How to design your REST API](#how-to-design-your-rest-api)
+     - [Create a resource](#create-a-resource)
+     - [Create a sub-resource](#create-a-sub-resource)
+     - [Read resources](#read-resources)
+     - [Read a single resource](#read-a-single-resource)
+     - [Update a resource](#update-a-resource)
+     - [Partially update a resource](#partially-update-a-resource)
+     - [Delete a resource](#delete-a-resource)
+     - [Check if a resource exists](#check-if-a-resource-exists)
+	 - [Bulk operations](#bulk-operations)
+	 - [Asynchronous operations](#asynchronous-operations)
+	 - [File uploads](#file-uploads)
+   - [Error handling](#error-handling)
+   - [API versioning](#api-versioning)
  - [Best practices](#best-practices)
  - [A sample project structure](#a-sample-project-structure)
  - [Build a RESTful API in Express from scratch](#build-a-restful-api-in-express-from-scratch)
  - [References](#references)
 
-## Definitions
+# Definitions
 
 **HTTP:** The Hypertext Transfer Protocol is an application layer protocol for distributed, collaborative, hypermedia information systems.<br /><br />
 **REST:** REST is an acronym for REpresentational State Transfer. It is an architectural style for distributed hypermedia systems and was first presented by Roy Fielding in 2000.<br /><br />
@@ -36,11 +56,13 @@ The article is intended for everyone (beginner or not) who wants to build a read
 **Method:** Actions performed on a resource. HTTP methods like GET, POST, PUT, DELETE, PATCH are used for different operations.<br /><br />
 **Identifier:** An URI which uniquely identifies a resource.<br /><br />
 **Representation:** How a resource is returned to the client. Resources are decoupled from their representations. You can represent a resource with any of the following: JSON, HTML, XML, plain text, PDF.<br /><br />
-**Collection:** A group of resources. Can be one single resource, many resources, or resources and sub-resources together.
+**Collection:** A group of resources. Can be one single resource, many resources, or resources and sub-resources together.<br /><br />
+**Idempotency:** From a RESTful service standpoint, for an operation (or service call) to be idempotent, clients can make that same call repeatedly while producing the same result. In other words, making multiple identical requests has the same effect as making a single request. Note that while idempotent operations produce the same result on the server (no side effects), the response itself may not be the same (e.g. a resource's state may change between requests).
 
-## HTTP and REST
+# HTTP and REST
 
-### REST basic principles
+## REST basic principles
+
 **Client-Server:** Separate user interface from the data layer to make the user interface portable and to allow all layers to evolve independently.<br /><br />
 **Stateless:** The server cannot store any context. All the necessary information to fulfill the request must be present on the request itself. State is kept entirely on the client.<br /><br />
 **Cacheable:** To improve network efficiency, we add cache constraints. Cache constraints require that the data within a response to a request be implicitly or explicitly labeled as cacheable or non-cacheable. If a response is cacheable, then a client cache is given the right to reuse that response data for later, equivalent requests.<br /><br />
@@ -48,13 +70,15 @@ The article is intended for everyone (beginner or not) who wants to build a read
 **Layered system:** The layered system style allows an architecture to be composed of hierarchical layers by constraining component behavior such that each component cannot “see” beyond the immediate layer with which they are interacting.<br /><br />
 **Code on demand**: REST allows client functionality to be extended by downloading and executing code in the form of applets or scripts. [1, 9]
 
-### REST vs HTTP
+## REST vs HTTP
+
 HTTP (HyperText Transfer Protocol) is an application-level protocol and it defines a set of rules on how information is transmitted in the world-wide-web. It is not the only protocol on the application layer (e.g. FTP, SMTP, etc...), but it is the most popular and the accepted standard.
 REST is a set of rules (or an architectural style) that standardizes the way applications are built on the web.<br /><br />
 REST might seem a lot like HTTP because most of the constraints and standards are based on HTTP concepts (e.g. resources, identifiers, methods, responses and status codes, caching, etc...). However, the REST specification does not imply that HTTP must be mandatorily used as a transfer protocol. A REST API could use another transfer protocol and it would be perfectly correct, provided that it was compliant with all REST constraints. Of course, this is just theory because almost all REST APIs today are built on top of HTTP.
 Finally, we must also keep in mind that not all HTTP APIs are RESTful APIs. An HTTP API is every API that uses HTTP as a transfer protocol (e.g. SOAP APIs).
 
-### REST architectural elements
+## REST architectural elements
+
 From this section onwards, the discussions regarding REST details will be based on the assumption that HTTP is used as a transfer protocol. The main architectural elements of REST over HTTP are: [1, 5, 6, 9]
 
 - Resources
@@ -63,17 +87,17 @@ From this section onwards, the discussions regarding REST details will be based 
 - Representations
 - HTTP methods
 
-#### Resources:
+### Resources:
 REST APIs are designed around _resources_, which are any kind of object, data, or service that can be accessed by the client. Any information that can be named can be a resource: a document or image, a temporal service, a collection of other resources, a non-virtual object (e.g. a person), and so on. A resource has data, relationships to other resources, and methods that operate against it to allow for accessing and manipulating the associated information. A group of resources is called a collection.
 
-#### Identifiers:
+### Identifiers:
 A resource has an _identifier_, which is a URI that uniquely identifies that resource. The naming authority (e.g. an organization providing APIs) that assigned the resource identifier making it possible to reference the resource, is responsible for maintaining the semantic validity of the mapping over time (ensuring that the membership function does not change).
 
-#### Representations:
+### Representations:
 REST components perform actions on a resource by using a representation to capture the current or intended state of that resource and transferring that representation between components. A representation is a sequence of bytes, plus representation metadata to describe those bytes. Other commonly used but less precise names for a representation include document, file, and HTTP message entity, instance, or variant.
 Most web APIs use JSON as the exchange format, but a resource could be represented even as plain text, HTML, XML, PDF, etc...
 
-#### HTTP methods:
+### HTTP methods:
 All resources have a set of methods that can be operated against them to work with the data being exposed by the API. REStful APIs comprise majorly of HTTP methods which have well defined and unique actions against any resource. Here’s a list of commonly used HTTP methods that define the CRUD operations for any resource or collection in a RESTful API: 
 
 -   GET  retrieves a representation of the resource at the specified URI. The body of the response message contains the details of the requested resource.
@@ -82,15 +106,124 @@ All resources have a set of methods that can be operated against them to work wi
 -   PATCH  performs a partial update of a resource. The request body specifies the set of changes to apply to the resource.
 -   DELETE  removes the resource at the specified URI.
 
-## Guides
+# Guides
 
-## Best practices
+## Summary of REST and HTTP main concepts
 
-## A sample project structure
+### Methods
+### Headers
+### Status codes
 
-## Build a RESTful API in Express from scratch
+## How to design your REST API
 
-## References
+This section will describe how you can structure your API endpoints. For each operation, the following information will be given:
+- A short description of the purpose of the operation (e.g. what should we achieve when using POST, GET, etc..).
+- A sample URL template.
+- A sample request body (we will concentrate on JSON representations).
+- A sample response body.
+- HTTP statuses that we can return for each operation.
+- Other notes.
+
+The examples will be based on the following data model (a MongoDB schema):
+```
+const Book = {
+  _id: Object,
+  title: String,
+  author: ObjectId,
+  pages: Number,
+  genre: String,
+  publications: [{
+    _id: Object,
+    date: Date,
+  }],
+  images: [{
+    _id: Object,
+    url: String,
+  }]
+};
+```
+
+### Create a resource
+Under normal circumstances, when we want to create a new resource we must use the *POST* method. The request will have a body, where the client will provide the required and non-required fields. The content type of the request body will be JSON. Most of the fields will be provided by the client, but the service can also generate some values, depending on the application logic. 
+The response will contain a full JSON representation of the created resource, together with the HTTP status code. (*Note: In a pure RESTful API, together with the resource representation, Hypermedia Links must also be included to make it easier to access the newly created resource for reading, updating, and deleting it. In this article we will omit HATEOAS*).
+
+#### URL sample
+```
+POST /api/{version}/books
+```
+
+#### Request body sample
+```
+{
+  "title": "1984",
+  "author": "5e95e25b4d749e01161f92af",
+  "pages": 328,
+  "genre": "dystopian_fiction",
+  "publications": [{
+    "date": "1949-06-08"
+  }]
+}
+```
+
+#### Response sample
+```
+{
+  "status": 201,
+  "body": {
+    "_id": "5e96bd5641971b0117987a43",
+    "title": "1984",
+    "author": "5e95e25b4d749e01161f92af",
+    "pages": 328,
+    "genre": "dystopian_fiction",
+    "publications": [{
+      "_id": "5e96bd5641971b0117987a44",
+      "date": "1949-06-08"
+    }],
+    "images": [],
+    "createdAt": "2020-10-15 07:52:54.829Z",
+    "updatedAt": "2020-10-15 07:52:54.829Z"
+  }
+}
+```
+
+#### HTTP status codes
+The most common errors that could be returned from a POST request are the following:
+- 200 Success: Rare case. When the method does some processing but it doesn't create a new resource, it can return status 200 with the result of the operation in the response body. 
+- 201 Created: When the operation is finished successfully and the new resource is created.
+- 202 Accepted: This status is returned in case of asynchronous operations when you want to return control to the client and continue doing background work.
+- 204 No Content: This is similar to the 200 situation, but in this case, the processing does not return a result.
+- 400 Bad Request: This status is returned when the format of the request body is not correct.
+- 404 Not Found: When the resource is not found.
+- 422 Unprocessable Entity: This is returned when the request body is correct, but the operation cannot be performed due to semantic errors. 
+- 500 Internal Server Error: This is returned when the request cannot be satisfied because of some unexpected error in the server. 
+
+#### Other notes
+If a POST request is intended to create a new resource, the effects of the request should be limited to the new resource (and possibly any directly related resources if there is some sort of linkage involved). For example, in an e-commerce system, a POST request that creates a new order for a customer might also amend inventory levels and generate billing information, but it should not modify information not directly related to the order or have any other side-effects on the overall state of the system [7].
+
+### Create a sub-resource
+### Read resources
+### Read a single resource
+### Update a resource
+### Partially update a resource
+### Delete a resource
+### Check if a resource exists
+### Bulk operations
+### Asynchronous operations
+### File uploads
+
+## Error handling
+
+## API versioning
+
+# Best practices
+
+## Naming conventions
+
+# A sample project structure
+
+# Build a RESTful API in Express from scratch
+
+# References
 - [[1] Roy Thomas Fielding: Architectural Styles and the Design of Network-based Software Architectures (Dissertation)](https://www.ics.uci.edu/~fielding/pubs/dissertation/fielding_dissertation.pdf)
 - [[2] Paypal API Design Guidelines](https://github.com/paypal/api-standards/blob/master/api-style-guide.md)
 - [[3] Paypal API Design Patterns And Use Cases](https://github.com/paypal/api-standards/blob/master/patterns.md)
