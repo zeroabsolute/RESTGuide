@@ -1,4 +1,3 @@
-
 # RESTGuide
 
 *An opinionated guide on how to build a RESTful API in with Node.js and Express*
@@ -111,8 +110,65 @@ All resources have a set of methods that can be operated against them to work wi
 ## Summary of REST and HTTP main concepts
 
 ### Methods
+
+| HTTP Method | Description | Idempotent |
+|---|---|---|
+| `POST` | To _create_ a resource, or to _execute_ a complex operation on a resource. | No |
+| `GET` | To _retrieve_ a resource. | Yes |
+| `PUT` | To _update_ a resource. | Yes |
+| `PUT` | To _partially update_ a resource. | Yes |
+| `DELETE` | To _delete_ a resource. | Yes |
+| `HEAD` | A more lightweight version of GET. | Yes |
+
+
 ### Headers
+
+This is a list of the most common HTTP headers. For a full list, you can check [10].
+
+| HTTP Header | Description
+|---|---|
+| `Accept` | Advertises which content types, expressed as MIME types, the client can understand.
+| `Accept-Encoding` | Advertises which content-encoding, usually a compression algorithm, the client can understand.
+| `Accept-Language` | Advertises which languages the client can understand, and which locale variant is preferred. (By languages, we mean natural languages, such as English, and not programming languages.)
+| `Access-Control-Allow-Origin` | Indicates whether the response can be shared with requesting code from the given origin.
+| `Authorization` | Contains the credentials to authenticate a user agent with a server.
+| `Cache-Control` | Holds _directives_ (instructions) for caching in both requests and responses.
+| `Host` | Specifies the host and port number of the server to which the request is being sent.
+| `Referer` | Contains the address of the page making the request.
+| `User-Agent` | A characteristic string that lets servers and network peers identify the application, operating system, vendor, and/or version of the requesting user agent.
+
 ### Status codes
+Here we will only show the most used status code ranges. For a full list of codes, you can check [11].<br /><br />
+The most used status code ranges are the following:
+- `2xx`: The request has succeeded (the server received the request, understood it, accepted it, and processed it). The meaning of success depends on the HTTP method.
+- `4xx`: A client error has occurred. In most cases, the client can modify the request and resend it.
+- `5xx`: A server error has occurred. The client request is correct, but the operation could not be completed because of an internal software error on the server.
+
+The most used status codes in RESTful APIs [11]:
+| HTTP status code | Description
+|---|---|
+| `200 OK` | The request has succeeded. The meaning of success depends on the HTTP method.
+| `201 Created` | The request has succeeded and a new resource has been created as a result. This is typically the response sent after POST requests or some PUT requests.
+| `202 Accepted` | The request has been received but not yet acted upon. It is noncommittal since there is no way in HTTP to later send an asynchronous response indicating the outcome of the request. It is intended for cases where another process or server handles the request, or for batch processing.
+| `204 No Content` | There is no content to send for this request, but the headers may be useful. The user-agent may update its cached headers for this resource with the new ones.
+| `400 Bad Request` | The server could not understand the request due to invalid syntax.
+| `401 Unauthorized` | Although the HTTP standard specifies "unauthorized", semantically this response means "unauthenticated". That is, the client must authenticate itself to get the requested response.
+| `403 Forbidden` | The client does not have access rights to the content; that is, it is unauthorized, so the server is refusing to give the requested resource. Unlike 401, the client's identity is known to the server.
+| `404 Not Found` | The server can not find the requested resource. In the browser, this means the URL is not recognized. In an API, this can also mean that the endpoint is valid but the resource itself does not exist. Servers may also send this response instead of 403 to hide the existence of a resource from an unauthorized client.
+| `422 Unprocessable Entity` | The request was well-formed but was unable to be followed due to semantic errors.
+| `429 Too Many Requests` | The user has sent too many requests in a given amount of time ("rate limiting").
+| `500 Internal Server Error` | The server has encountered a situation it doesn't know how to handle.
+
+Below you can find a mapping of HTTP methods and the status codes they can return (taken from [2]). For each HTTP method, API developers should use only status codes marked as "X" in this table. If an API needs to return any of the status codes marked with an **`X`**, then the use case should be reviewed as part of the API design review process and maturity level assessment. Most of these status codes are used to support very rare use cases (more info can be found in [2]).
+
+|  | 200 Success | 201 Created | 202 Accepted | 204 No Content | 400 Bad Request | 404 Not Found | 422 Unprocessable Entity | 500 Internal Server Error |
+|---|---|---|---|---|---|---|---|---|
+| `GET` | X |   |   |   | X | X |**`X`**| X |
+| `POST` | X | X |**`X`**|   | X |**`X`**|**`X`**| X |
+| `PUT` | X |  |**`X`**| X | X | X |**`X`**| X |
+| `PATCH` | X |  |  | X | X | X |**`X`**| X |
+| `DELETE` | X |  |  | X | X | X |**`X`**| X |
+
 
 ## How to design your REST API
 
@@ -233,3 +289,5 @@ If a POST request is intended to create a new resource, the effects of the reque
 - [[7] Microsoft Web API implementation](https://docs.microsoft.com/en-us/azure/architecture/best-practices/api-implementation)
 - [[8] Hackernoon RESTful API Designing guidelines — The best practices](https://hackernoon.com/restful-api-designing-guidelines-the-best-practices-60e1d954e7c9)
 - [[9] REST API Tutorial](https://restfulapi.net/)
+- [[10] HTTP headers (MDN)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers)
+- [[11] HTTP status codes (MDN)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)
