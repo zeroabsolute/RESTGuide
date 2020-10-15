@@ -28,15 +28,16 @@ The article is intended for everyone (beginner or not) who wants to build a read
      - [Methods](#methods)
      - [Headers](#headers)
      - [Status codes](#status-codes)
-   - [How to design your REST API](#how-to-design-your-rest-api)
+   - [Main operations](#main-operations)
      - [Create a resource](#create-a-resource)
-     - [Create a sub-resource](#create-a-sub-resource)
      - [Read resources](#read-resources)
      - [Read a single resource](#read-a-single-resource)
      - [Update a resource](#update-a-resource)
      - [Partially update a resource](#partially-update-a-resource)
      - [Delete a resource](#delete-a-resource)
      - [Check if a resource exists](#check-if-a-resource-exists)
+     - [Sub-resources](#sub-resources)
+     - [Composite operations](#composite-operations)
 	 - [Bulk operations](#bulk-operations)
 	 - [Asynchronous operations](#asynchronous-operations)
 	 - [File uploads](#file-uploads)
@@ -170,12 +171,12 @@ Below you can find a mapping of HTTP methods and the status codes they can retur
 | `DELETE` | X |  |  | X | X | X |**`X`**| X |
 
 
-## How to design your REST API
+## Main operations 
 
 This section will describe how you can structure your API endpoints. For each operation, the following information will be given:
 - A short description of the purpose of the operation (e.g. what should we achieve when using POST, GET, etc..).
 - A sample URL template.
-- A sample request body (we will concentrate on JSON representations).
+- A sample request body, if applicable (we will concentrate on JSON representations).
 - A sample response body.
 - HTTP statuses that we can return for each operation.
 - Other notes.
@@ -203,13 +204,14 @@ const Book = {
 Under normal circumstances, when we want to create a new resource we must use the *POST* method. The request will have a body, where the client will provide the required and non-required fields. The content type of the request body will be JSON. Most of the fields will be provided by the client, but the service can also generate some values, depending on the application logic. 
 The response will contain a full JSON representation of the created resource, together with the HTTP status code. (*Note: In a pure RESTful API, together with the resource representation, Hypermedia Links must also be included to make it easier to access the newly created resource for reading, updating, and deleting it. In this article we will omit HATEOAS*).
 
-#### URL sample
+#### URL format
 ```
-POST /api/{version}/books
+POST /{version}/{collection}/{resource}
 ```
 
-#### Request body sample
+#### Request  sample
 ```
+POST /v1/interests/books
 {
   "title": "1984",
   "author": "5e95e25b4d749e01161f92af",
@@ -243,7 +245,7 @@ POST /api/{version}/books
 ```
 
 #### HTTP status codes
-The most common errors that could be returned from a POST request are the following:
+The most common status codes that could be returned from a POST request are the following:
 - 200 Success: Rare case. When the method does some processing but it doesn't create a new resource, it can return status 200 with the result of the operation in the response body. 
 - 201 Created: When the operation is finished successfully and the new resource is created.
 - 202 Accepted: This status is returned in case of asynchronous operations when you want to return control to the client and continue doing background work.
@@ -256,13 +258,152 @@ The most common errors that could be returned from a POST request are the follow
 #### Other notes
 If a POST request is intended to create a new resource, the effects of the request should be limited to the new resource (and possibly any directly related resources if there is some sort of linkage involved). For example, in an e-commerce system, a POST request that creates a new order for a customer might also amend inventory levels and generate billing information, but it should not modify information not directly related to the order or have any other side-effects on the overall state of the system [7].
 
-### Create a sub-resource
 ### Read resources
+When we want to read resources, most of the time we must use the GET method. There might be other scenarios (like complex searches) when we could also use a POST request and utilize the request body for sending the query parameters. 
+The response body should return a list of objects (representations of the resource). The representations for each object on the list must be the same (same type, same fields, same namings). 
+The data that is returned is not supposed to be a list of all existing resources. Usually, it includes a subset of that data for which the client has read access. This means that different clients can get different responses, based on their permissions. 
+Finally, for performance reasons (to save bandwidth), it is always advised to return a minimal representation of the resources. For a full representation, the client can always use the endpoints for reading individual resources. 
+
+#### URL format
+```
+GET /{version}/{collection}/{resource}
+```
+
+#### Request  sample
+```
+GET /v1/interests/books
+```
+
+#### Response sample
+```
+{
+  "status": 200,
+  "body": [
+    {
+      "_id": "5e96bd5641971b0117987a43",
+      "title": "1984",
+      "author": "5e95e25b4d749e01161f92af",
+      "pages": 328,
+      "genre": "dystopian_fiction",
+      "createdAt": "2020-10-15 07:52:54.829Z",
+      "updatedAt": "2020-10-15 07:52:54.829Z"
+    }
+  ]
+}
+```
+
+#### HTTP status codes
+The most common status codes that could be returned from a GET request are the following:
+- 200 Success: Most of the cases, either when there are results on the array, or when the array is empty.
+- 400 Bad Request: This status is returned when the format of the request (e.g. query params) is not correct.
+- 404 Not Found: When the resource is not found. This is returned only if the URL is not found. If the URL is correct and there are no results, we must return status 200 and an empty array of results.
+- 422 Unprocessable Entity: This is returned when the params are correct, but the operation cannot be performed due to semantic errors. 
+- 500 Internal Server Error.
+
+#### Other notes
+When reading resources, we usually send some query parameters to filter the results, to sort them, or for pagination purposes. Some of the most common query parameters would be:
+- Sorting: `sort_by` (by which attribute should we sort) and `sort_order` (how should we sort, ascending or descending).
+- Pagination: `skip` (from which index should we start reading) and `limit` (the page size, or how many results should we get back per request).
+- Filter by time: `start_time` and `end_time` (or date). 
+
 ### Read a single resource
+This request is similar to the one above, but it returns one single object instead of a list and in most cases, the returned representation is much more detailed.
+
+#### URL format
+```
+GET /{version}/{collection}/{resource}/{resource-id}
+```
+
+#### Request  sample
+```
+GET /v1/interests/books/5e96bd5641971b0117987a43
+```
+
+#### Response sample
+```
+{
+  "status": 200,
+  "body": {
+    "_id": "5e96bd5641971b0117987a43",
+    "title": "1984",
+    "pages": 328,
+    "genre": "dystopian_fiction",
+    "publications": [{ 
+      "_id": "5e96bd5641971b0117987a44", 
+      "date": "1949-06-08" 
+    }], 
+    "images": [],
+    "createdAt": "2020-10-15 07:52:54.829Z",
+    "updatedAt": "2020-10-15 07:52:54.829Z",
+    "author": {
+      "_id": "5e95e25b4d749e01161f92af",
+      "firstName": "George",
+      "lastName": "Orwell"
+    }
+  }
+}
+```
+
+#### HTTP status codes
+The most common status codes that could be returned from a GET request for a single resource are the following:
+- 200 Success: When the resource is found.
+- 400 Bad Request
+- 404 Not Found: When the resource on the given URL is not found.
+- 422 Unprocessable Entity 
+- 500 Internal Server Error
+
 ### Update a resource
+To update an entire resource, the PUT method must be used. To avoid inconsistencies, when a PUT request is made, the body must contain all the fields of the model. There might be cases when not all attributes are allowed to be updated. In this case, they will be marked as readOnly in the validation schema.
+
+#### URL format
+```
+PUT /{version}/{collection}/{resource}/{resource-id}
+```
+
+#### Request  sample
+```
+PUT /v1/interests/books/5e96bd5641971b0117987a43
+{
+  "title": "Nineteen Eighty-Four",
+  "author": "5e95e25b4d749e01161f92af",
+  "pages": 328,
+  "genre": "dystopian_fiction",
+  "publications": [{
+    "date": "1949-06-08"
+  }],
+  "images": [],
+  "createdAt": "2020-10-15 07:52:54.829Z",
+  "updatedAt": "2020-10-15 07:52:54.829Z"
+}
+```
+
+#### Response sample
+```
+{
+  "status": 204
+}
+```
+
+#### HTTP status codes
+The most common status codes that could be returned from a PUT request are the following:
+- 200 Success: Rare case. This status is returned only in those cases when there are some server-generated values during the update, and those values must be sent back to the client. In such scenarios, a 200 status and a response body would be appropriate.  
+- 202 Accepted: This status is returned in case of asynchronous operations when you want to return control to the client and continue doing background work.
+- 204 No Content: This is the standard success status for PUT requests. If we don't have any server-generated values that the client needs, we just send back a 204 and there is no need to echo the request body (this saves bandwidth).
+- 400 Bad Request
+- 404 Not Found
+- 422 Unprocessable Entity
+- 500 Internal Server Error
+
+#### Other notes
+Apart from updating the entire resource, PUT is sometimes used for updating one single attribute from a resource. However, this should not be confused with partial updates (where we must use PATCH). If we want to update a single attribute, the URL must point to that attribute which will be updated. This way, that specific attribute becomes a resource on its own. 
+This can happen if the update on this specific attribute requires a complex logic to be implemented. Instead of overloading the PATCH endpoint on the main resource, we consider this attribute as a new resource and implement a PUT endpoint on it. 
+Example: `PUT /v1/interests/books/5e96bd5641971b0117987a43/author`
+
 ### Partially update a resource
 ### Delete a resource
 ### Check if a resource exists
+### Sub-resources
+### Composite operations
 ### Bulk operations
 ### Asynchronous operations
 ### File uploads
