@@ -306,6 +306,20 @@ When reading resources, we usually send some query parameters to filter the resu
 - Pagination: `skip` (from which index should we start reading) and `limit` (the page size, or how many results should we get back per request).
 - Filter by time: `start_time` and `end_time` (or date). 
 
+Another thing which needs to be mentioned is "projected responses". As stated above, REST APIs usually return a minimal representation of the resource, to save bandwidth. It is possible, however, that the client sends a list of attributes that he needs to get in the response. These are projected responses. To achieve this, the client must include an extra query parameter _(fields)_ which can be a comma-separated string or an array: 
+```
+GET /v1/interests/books?fields=title,genre
+{
+  "status": 200,
+  "body": [
+    {
+      "title": "1984",
+      "genre": "dystopian_fiction"
+    }
+  ]
+}
+```
+
 ### Read a single resource
 This request is similar to the one above, but it returns one single object instead of a list and in most cases, the returned representation is much more detailed.
 
@@ -400,6 +414,78 @@ This can happen if the update on this specific attribute requires a complex logi
 Example: `PUT /v1/interests/books/5e96bd5641971b0117987a43/author`
 
 ### Partially update a resource
+Sometimes it is not necessary to update a whole resource. You just need to update a couple of fields and you don't want to send the whole body for that. In these cases, PATCH is more appropriate to use than PUT. Among other advantages, PATCH also saves bandwidth, especially when the target resource is big.
+
+#### URL format
+```
+PATCH /{version}/{collection}/{resource}/{resource-id}
+```
+
+#### Request  sample
+```
+PATCH /v1/interests/books/5e96bd5641971b0117987a43
+{
+  "title": "Nineteen Eighty-Four (1984)"
+}
+```
+
+#### Response sample
+```
+{
+  "status": 204
+}
+```
+
+#### HTTP status codes
+The most common status codes that could be returned from a PATCH request are the following:
+- 200 Success: Rare case. This status is returned only in those cases when the client needs the new representation. We return 200 and the updated object in the response body.  
+- 204 No Content: This is the standard success status for PATCH requests.
+- 400 Bad Request
+- 404 Not Found
+- 422 Unprocessable Entity
+- 500 Internal Server Error
+
+#### Other notes
+The method that was explained above for PATCH-ing resources is called "JSON Merge Patch". Its purpose is to send a request body where you specify the new value that the attribute will have after the request is done. The only supported operation you could do on an attribute is updating its value. The standard also shows a convention about deleting a value from the resource, which can be achieved by setting the value of the attribute to null. So, the request shown below would update the title of the book, it would delete the value of the "genre" field, and it would add a new book release:
+```
+PATCH /v1/interests/books/5e96bd5641971b0117987a43
+{
+  "title": "Nineteen Eighty-Four (1984)",
+  "genre": null,
+  "publications": [
+    {
+      "date": "1949-06-08"
+    },
+    {
+      "date": "1950-07-01"
+    }
+  ],
+}
+```
+For simple updates, the merge path approach would be enough. However, for more complex operations there is another more advanced standard called "JSON Patch". In JSON Patch, you define a JSON with the instructions on how to update a specific attribute and you also define the order of the operations. All operations must be executed atomically. For each field you want to update, you must define the type of the operation, the path of the attribute within the resource, and the new value (if applicable for the operation). The operations defined in the standard are: _add, remove, replace, move, copy, test_. To achieve the same result as above, but this time using JSON Patch, we would send the following request:
+```
+PATCH /v1/interests/books/5e96bd5641971b0117987a43
+[
+  {
+    "op": "replace",
+    "path": "/title",
+    "value": "Nineteen Eighty-Four (1984)"
+  },
+  {
+    "op": "remove",
+    "path": "/genre"
+  },
+  {
+    "op": "add",
+    "path": "/publications",
+    "value": [{
+      "date": "1950-07-01"
+    }]
+  }
+]
+```
+More information about both standards can be found at [12].
+
 ### Delete a resource
 ### Check if a resource exists
 ### Sub-resources
@@ -432,3 +518,4 @@ Example: `PUT /v1/interests/books/5e96bd5641971b0117987a43/author`
 - [[9] REST API Tutorial](https://restfulapi.net/)
 - [[10] HTTP headers (MDN)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers)
 - [[11] HTTP status codes (MDN)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)
+- [12] [JSON Merge Patch](https://tools.ietf.org/html/rfc7386) and [JSON Patch](https://tools.ietf.org/html/rfc6902)
