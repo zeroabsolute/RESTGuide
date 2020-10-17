@@ -487,7 +487,62 @@ PATCH /v1/interests/books/5e96bd5641971b0117987a43
 More information about both standards can be found at [12].
 
 ### Delete a resource
+The DELETE endpoints are used to delete a resource identified by the given URL. If the operation is successful, the server should respond with a 204 status and return no content. If the resource does not exist or has been deleted previously, all subsequent requests can either return 204 or 404 to emphasize that the resource is not found. There is no standard rule for this case. The important thing is that the state of the system is not modified with every request, which makes DELETE idempotent.  
+
+#### URL format
+```
+DELETE /{version}/{collection}/{resource}/{resource-id}
+```
+
+#### Request  sample
+```
+DELETE /v1/interests/books/5e96bd5641971b0117987a43
+```
+
+#### Response sample
+```
+{
+  "status": 204
+}
+```
+
+#### HTTP status codes
+The most common status codes that could be returned from a DELETE request are the following:
+- 200 Success: Rare case. This status is returned only in those cases when there is some server-generated value that the client needs after the delete.
+- 204 No Content: This is the standard success status for DELETE requests.
+- 400 Bad Request
+- 404 Not Found
+- 422 Unprocessable Entity
+- 500 Internal Server Error
+
 ### Check if a resource exists
+Sometimes we don't need to get a whole resource representation. We just need to know if it exists or not. In these cases, it is advised to use HEAD and return a 200 status if the resource exists, or a 404 if it doesn't. 
+
+#### URL format
+```
+HEAD /{version}/{collection}/{resource}/{resource-id}
+```
+
+#### Request  sample
+```
+HEAD /v1/interests/books/5e96bd5641971b0117987a43
+```
+
+#### Response sample
+```
+{
+  "status": 200
+}
+```
+
+#### HTTP status codes
+The most common status codes that could be returned from a HEAD request are the following:
+- 200 Success: When the requested resource exists.
+- 400 Bad Request
+- 404 Not Found
+- 422 Unprocessable Entity
+- 500 Internal Server Error
+
 ### Sub-resources
 ### Composite operations
 ### Bulk operations
