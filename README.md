@@ -544,6 +544,19 @@ The most common status codes that could be returned from a HEAD request are the 
 - 500 Internal Server Error
 
 ### Sub-resources
+Resources can have relations between them. If we want to expose the associations, we could use subresources. <br />
+Examples:
+```
+POST /{version}/{collection}/{resource}/{resource-id}/{sub-resource}
+GET /{version}/{collection}/{resource}/{resource-id}/{sub-resource}
+GET /{version}/{collection}/{resource}/{resource-id}/{sub-resource}/{sub-resource-id}
+PUT /{version}/{collection}/{resource}/{resource-id}/{sub-resource}/{sub-resource-id}
+DELETE /{version}/{collection}/{resource}/{resource-id}/{sub-resource}/{sub-resource-id}
+```
+In practice, it is not advised to build an entire API around the concept of subresources. Instead, it is much more practical to consider the sub-resources as resources on their own.<br /> <br />
+From Microsoft guidelines for building REST API:<br />
+In more complex systems, it can be tempting to provide URIs that enable a client to navigate through several levels of relationships, such as `/customers/1/orders/99/products`. However, this level of complexity can be difficult to maintain and is inflexible if the relationships between resources change in the future. Instead, try to keep URIs relatively simple. Once an application has a reference to a resource, it should be possible to use this reference to find items related to that resource. The preceding query can be replaced with the URI `/customers/1/orders` to find all the orders for customer 1, and then `/orders/99/products` to find the products in this order [6].
+
 ### Composite operations
 ### Bulk operations
 ### Asynchronous operations
