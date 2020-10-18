@@ -37,7 +37,7 @@ The article is intended for everyone (beginner or not) who wants to build a read
      - [Delete a resource](#delete-a-resource)
      - [Check if a resource exists](#check-if-a-resource-exists)
      - [Sub-resources](#sub-resources)
-     - [Composite operations](#composite-operations)
+     - [Complex operations](#complex-operations)
 	 - [Bulk operations](#bulk-operations)
 	 - [Asynchronous operations](#asynchronous-operations)
 	 - [File uploads](#file-uploads)
@@ -557,10 +557,110 @@ In practice, it is not advised to build an entire API around the concept of subr
 From Microsoft guidelines for building REST API:<br />
 In more complex systems, it can be tempting to provide URIs that enable a client to navigate through several levels of relationships, such as `/customers/1/orders/99/products`. However, this level of complexity can be difficult to maintain and is inflexible if the relationships between resources change in the future. Instead, try to keep URIs relatively simple. Once an application has a reference to a resource, it should be possible to use this reference to find items related to that resource. The preceding query can be replaced with the URI `/customers/1/orders` to find all the orders for customer 1, and then `/orders/99/products` to find the products in this order [6].
 
-### Composite operations
+### Complex operations
+These are operations that create/update/delete multiple resources in a single request, or handle a very complicated business logic that is not necessarily related to one resource specifically. Some examples of these kinds of operations are (taken from Paypal standards [3]):
+- When we have to build a processing function based on a set of inputs from the client.
+- When we need to combine many operations over some resources and execute them atomically (e.g. create a new resource, update an existing one, and delete a third one, all within the same request). 
+- When we have to implement some complex business logic and we want to hide internal details from the client.
+
+Regarding the naming of these types of operations, it is easier to use verbs rather than nouns (violating the standards for RESTful APIs). Some examples of such verbs could be "confirm", "accept", "reject", "search", "cancel", etc...<br />
+The default HTTP method that should be used in these cases is POST. If we need to make the response cacheable, we could use GET.
+
+#### URL format
+```
+POST /{version}/{collection}/{resource}/{action}
+```
+
+#### HTTP status codes
+The most common status codes that could be returned from these complex operations are:
+- 200 Success: This is the default success code and the response should also include a body describing the result of the operation.
+- 201 Created: When the operation leads to the creation of a resource. If the operation creates one or more resources and it is not possible to express them as a composite record, the 200 status could be used.
+- 204 No Content: When there is nothing to return in the body. 
+- 4xx: For client errors.
+- 5xx: Internal errors.
+
 ### Bulk operations
+Sometimes it is better to create/update/delete multiple resources within the same request instead of doing many HTTP requests. It could be easier for the client and more performant at the same time since the network latency is added only once. The request body should contain all the necessary information for performing the operation on all the resources. The response body would ideally return a similar response, with the status (success or failure) for each resource.
+
+#### URL format
+```
+POST /{version}/{collection}/{resource}/bulk
+```
+
+#### Request  sample
+```
+POST /v1/interests/books/bulk
+[
+  {
+    "title": "Crime and Punishment",
+    "author": "5e95e25b4d749e01161f92ag",
+    "pages": 671,
+    "genre": "psychological-fiction",
+    "publications": [{
+      "date": "1866-01-01"
+    }]
+  },
+  {
+    "title": "The Trial",
+    "author": "5e95e25b4d749e01161f92ah",
+    "pages": 255,
+    "genre": "absurdist-fiction",
+    "publications": [{
+      "date": "1925-01-01"
+    }]
+  }
+]
+```
+
+#### Response sample
+```
+{
+  "status": 200,
+  "body": [
+    {
+      status: "SUCCESS",
+      result: {
+        "_id": "5e96bd5641971b0117987a44",
+        "title": "Crime and Punishment",
+        "author": "5e95e25b4d749e01161f92ah",
+        "pages": 671,
+        "genre": "psychological-fiction",
+        "publications": [{
+          "_id": "5e96bd5641971b0117987a45",
+          "date": "1866-01-01"
+        }],
+        "images": [],
+        "createdAt": "2020-10-18 07:52:54.829Z",
+        "updatedAt": "2020-10-18 07:52:54.829Z"
+      }
+    },
+    {
+      status: "ERROR",
+      result: {
+        "code": 10000,
+        "message": "A record with the same name already exists"
+      }
+    }
+  ]
+}
+```
+
+#### HTTP status codes
+The most common status codes that could be returned from a bulk POST request are the following:
+- If the operation is transactional (all or nothing), regular POST status codes can be used. 
+- If we need to support partial failures, 200 status code should be returned,  including a detailed payload with the result of each resource.
+- If there is support for asynchronous operations, 202 must be returned.
+
 ### Asynchronous operations
+Some types of operations may require a long time to complete (e.g. heavy processing,  analytics, file uploads, etc...). In order to avoid long delays for the client (or timeouts), we could use the asynchronous pattern. Async operations could be applied to any HTTP method. The basic idea is that once the server receives the request with all the necessary information, it immediately returns a "202 Accepted" status and continues to process the request asynchronously. Apart from that, the server must offer a way for the client to know the progress of the operation. There are two cases:
+- If the operation is a resource creation (i.e. a POST request), the server must return a generated id that the client can use to retrieve the resource once it is created. Until the resource is ready, the server could respond with a "404 Not Found" status.
+- For all the other types of operations, the server should offer an endpoint where the client can do polling to get the current status of the operation. Optionally, the server could also notify the client once the operation is finished (e.g. using sockets or push notifications).
+
 ### File uploads
+Uploading files is a common functionality in most APIs. There are many ways to do this in a RESTful API:
+- Using base64 encoding and treating files like normal fields in a JSON request body: This is the easiest way and it is great for handling small files. When it comes to larger files, however, it is not suggested since it causes performance problems. A base64 representation is 30% bigger in size compared to the original file. In addition, encoding and decoding the file requires time both in the client and in the server.
+- Using dedicated endpoints for uploading files as _multipart/form-data_: The client sends the first request to the file upload endpoint. If the operation succeeds, the server responds with the metadata of the file (e.g. url, size, name, type, etc...). Next, the client can use the metadata in subsequent requests.
+- Using the same endpoint for uploading files and sending other body parameters: In these cases, we could use a mixed content type. The first part of the request body would be a JSON _(Content-Type: application/json)_ with the normal attributes. The second part would be the binary representation of the file _(e.g. Content-Type: image/jpeg)_. 
 
 ## Error handling
 
