@@ -43,6 +43,9 @@ The article is intended for everyone (beginner or not) who wants to build a read
 	 - [File uploads](#file-uploads)
    - [Error handling](#error-handling)
    - [API versioning](#api-versioning)
+     - [Semantic versioning](#semantic-versioning)
+     - [How to handle API versions](#how-to-handle-api-versions)
+     - [Deprecation](#deprecation)
  - [Best practices](#best-practices)
  - [A sample project structure](#a-sample-project-structure)
  - [Build a RESTful API in Express from scratch](#build-a-restful-api-in-express-from-scratch)
@@ -664,7 +667,52 @@ Uploading files is a common functionality in most APIs. There are many ways to d
 
 ## Error handling
 
+Every endpoint we implement must do exception handling. Errors and exceptions happen all the time, so the purpose of the programmer is to catch them and return them as a response to the client. The error should contain enough information for the client to understand what happened, so it should be meaningful and human-readable. On the other hand, the error should be logged somewhere and it needs to be read and understood by machines. So, the way we represent errors must cover both cases. 
+
+### Schema
+A good and flexible representation for errors in REST APIs, based on many existing models, would be the following:
+- _code_: A unique identifier, which can be an integer or a hash. It will be used to identify the error (we can use only the status code for that since we can have multiple errors with the same status). 
+- _name_: A human-readable message, describing the error.
+- _details_: This field could be an array or an object with more detailed information on the error. For example, if this is a validation error (i.e. status 400), the details field would be an array of objects, where each item would represent an invalid field and the validation error for that. If this is another error (i.e. thrown from a third-party library or service), we could put the whole error as returned by the library to the details field. This is of no interest to the client, but it would help in debugging the problem.
+
 ## API versioning
+
+APIs change rapidly. Business requirements might change, the data model can change, the relationships between resources might change. The process of making the changes is not difficult, but making the changes and taking into consideration how they affect the clients could be tricky. The API developers do not have control over client applications most of the time. The purpose is to evolve the API, so the clients can take advantage of the new features, but at the same time, it is essential to allow current clients to still work with the API, despite the changes.
+
+### Semantic versioning
+Semantic versioning is a set of practical rules and standards on how we can manage our application's versions. It is widely accepted as the standard way by most programmers. The standard is simple and it is based on the following rules:<br /><br/>
+Given a version number _MAJOR.MINOR.PATCH_, increment the:
+
+1.  _MAJOR_ version when you make incompatible API changes,
+2.  _MINOR_ version when you add functionality in a backward-compatible manner, and
+3.  _PATCH_ version when you make backward-compatible bug fixes.
+
+Additional labels for pre-release and build metadata are available as extensions to the _MAJOR.MINOR.PATCH_ format [13].
+
+### How to handle API versions
+Semantic versioning is what we should use to handle our application versioning internally. However, we cannot expose all that level of detail to the client. The client is concerned only with changes that break their current logic, so it is more than enough for an API to expose just the major version. <br /><br />
+There are many ways how we can deal with API versioning [6]:
+- Do not expose API versions at all: This is OK if our changes are always backward-compatible. So, if we keep adding new fields to a response body and the client can ignore all of the fields that it doesn't need, there is no problem at all. The problems occur if the changes are not backward-compatible (i.e. if we remove a field from a response body). 
+- URI versioning: This is how we have presented the examples until now. The major API version is attached to the URI (usually at the beginning of the path). Whenever we make a breaking change, we increment the version in the URI. To offer backward-compatibility for existing consumers of the API, we continue to operate old endpoints, returning the resources that match the original schema.
+- Query string versioning: This is very similar to URI versioning, but in this case, we don't have many different URIs for each version. Instead, we send the version as a query string parameter. 
+- Header versioning: This approach does not rely on the URI at all. The version is sent as a custom header (e.g. Custom-Header: api-version=1).
+
+### Deprecation
+
+One way to handle breaking changes in an API is the one explained above, to release a new major API version and wait for the clients to migrate while keeping the old versions live till the last client has adapted the changes. However, there are many problems which come with this approach.<br />
+Firstly, clients are never willing to make changes. It might be costly for them to adopt an entirely new logic, both financially and regarding time.<br />
+Secondly, it comes with extra costs for the API provider, because old API versions must be offered until all clients migrate to the new version. Supporting multiple versions at the same time needs separate hosting environments.<br />
+Finally, the API might be offering several endpoints and the breaking changes may affect only a small part of the logic. So, it is not effective to release a new major version of the whole API, just because a few endpoints changed.<br /><br/> 
+The solution would be to deprecate certain parts of the API and prevent new clients from using them while offering them for the existing clients for as long as the last client has finished the migration. This can be done in a minor version of the API. The deprecated element could be any of the following:
+- An entire resource
+- A method
+- A parameter
+- A query parameter
+- A header
+- A whole JSON request body
+- An enum value
+
+The deprecated part must be emphasized in the API documentation and the client must be notified of the deprecated elements even during runtime (e.g. by logging warnings when the API element is used). 
 
 # Best practices
 
@@ -687,3 +735,4 @@ Uploading files is a common functionality in most APIs. There are many ways to d
 - [[10] HTTP headers (MDN)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers)
 - [[11] HTTP status codes (MDN)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)
 - [12] [JSON Merge Patch](https://tools.ietf.org/html/rfc7386) and [JSON Patch](https://tools.ietf.org/html/rfc6902)
+- [[13] Semantic Versioning](https://semver.org/)
