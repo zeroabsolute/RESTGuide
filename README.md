@@ -47,6 +47,12 @@ The article is intended for everyone (beginner or not) who wants to build a read
      - [How to handle API versions](#how-to-handle-api-versions)
      - [Deprecation](#deprecation)
  - [Best practices](#best-practices)
+    - [Naming conventions](#naming-conventions)
+    - [Project structure](#project-structure)
+    - [Errors](#errors)
+    - [Code style](#code-style)
+    - [Testing](#testing)
+    - [Security and going to production](#security-and-going-to-production)
  - [A sample project structure](#a-sample-project-structure)
  - [Build a RESTful API in Express from scratch](#build-a-restful-api-in-express-from-scratch)
  - [References](#references)
@@ -699,7 +705,7 @@ There are many ways how we can deal with API versioning [6]:
 
 ### Deprecation
 
-One way to handle breaking changes in an API is the one explained above, to release a new major API version and wait for the clients to migrate while keeping the old versions live till the last client has adapted the changes. However, there are many problems which come with this approach.<br />
+One way to handle breaking changes in an API is the one explained above, to release a new major API version and wait for the clients to migrate while keeping the old versions live till the last client has adapted the changes. However, many problems come with this approach.<br />
 Firstly, clients are never willing to make changes. It might be costly for them to adopt an entirely new logic, both financially and regarding time.<br />
 Secondly, it comes with extra costs for the API provider, because old API versions must be offered until all clients migrate to the new version. Supporting multiple versions at the same time needs separate hosting environments.<br />
 Finally, the API might be offering several endpoints and the breaking changes may affect only a small part of the logic. So, it is not effective to release a new major version of the whole API, just because a few endpoints changed.<br /><br/> 
@@ -716,7 +722,97 @@ The deprecated part must be emphasized in the API documentation and the client m
 
 # Best practices
 
+In this section, we will briefly mention some of the best practices you can follow while building a REST API in Node.js. Most of the information is taken from [4, 5, 7, 8].
+
 ## Naming conventions
+
+### URIs
+URIs have a specific structure:
+```
+Structure: {scheme}/{authority}/{path}/{query}/{fragment}
+Example: https://example.com:8080/api/v1/books?name=1984#tag
+```
+Naming conventions for URIs [2]:
+- URIs must use only lowercase letters.
+- Literals/expressions in URI paths should be separated using a hyphen "-".
+- Literals/expressions in query strings should be separated using underscore "_".
+- Plural nouns should be used in the URI where appropriate to identify collections of data resources.
+
+### Resources
+The following rules must be considered when working with resources:
+- Nouns must be used for resource names, not verbs.
+- Resource names must be lower-case and use only alphanumeric characters and hyphens.
+- Collection names must be plural.
+
+### Fields
+The following rules must be considered when declaring fields:
+- Key names must be lower-case words, written in camel case.
+- Prefix such as _is_ or _has_ should not be used for keys of type boolean.
+- Fields that represent arrays should be named using plural nouns.
+
+## Project structure
+
+### Structure your code based on components
+There are two ways how we can structure our code:
+- Component-based: The whole logic regarding one component is in the same directory (e.g. in the same directory you could put the model, the controller, the authorization logic, routes' declaration, and the input validation logic).
+- Role-based: Files are grouped by their technical role (e.g. we put routes in the same directory, controllers in another directory, models in a separate directory, and so on).
+
+By grouping files based on components, code becomes more scalable and developers can work more easily.
+
+### Separate Express 'app' and 'server'
+Separate your 'Express' definition to at least two files: the API declaration (app.js) and the networking concerns (server.js). This allows testing the API in-process, without performing network calls, with all the benefits that it brings to the table: fast testing execution and getting coverage metrics of the code.
+
+### Use environment aware, secure and hierarchical config
+A perfect and flawless configuration setup should ensure:
+- Keys can be read from a file and environment variable 
+- Secrets are kept outside committed code (c) config is hierarchical for easier findability.
+
+## Errors
+
+### Use Async-Await or promises for async error handling
+Handling async errors in callback style is probably the fastest way to hell (a.k.a the pyramid of doom). The best gift you can give to your code is using a reputable promise library or async-await instead which enables a much more compact and familiar code syntax like try-catch.
+
+### Document API errors using Swagger
+Let your API callers know which errors might come in return so they can handle these thoughtfully without crashing. For RESTful APIs, this is usually done with documentation frameworks like Swagger.
+
+### Use a mature logger to increase error visibility
+A set of mature logging tools will speed-up error discovery and understanding. So forget about console.log.
+
+### Catch unhandled promise rejections
+Any exception thrown within a promise will get swallowed and discarded unless a developer didn’t forget to explicitly handle it. Overcome this by registering to the _process.unhandledRejection_ event.
+
+### Validate arguments using a dedicated library
+Assert API input to avoid nasty bugs that are much harder to track later. The validation code is usually tedious unless you are using a very cool helper library like _ajv_ and _Joi_.
+
+## Code style
+
+### Use ESLint
+ESLint is the de-facto standard for checking possible code errors and fixing code style, not only to identify nitty-gritty spacing issues but also to detect serious code anti-patterns like developers throwing errors without classification. On top of ESLint standard rules that cover vanilla JavaScript, add Node.js specific plugins like _eslint-plugin-node_, _eslint-plugin-mocha_, and _eslint-plugin-node-security_.
+
+### Use naming conventions for variables, constants, functions and classes
+Use _lowerCamelCase_ when naming constants, variables, and functions and _UpperCamelCase_ (capital first letter as well) when naming classes. This will help you to easily distinguish between plain variables/functions, and classes that require instantiation. Use descriptive names, but try to keep them short.
+
+### Prefer const over let. Ditch the var
+Using _const_ means that once a variable is assigned, it cannot be reassigned. Preferring _const_ will help you to not be tempted to use the same variable for different uses, and make your code clearer. If a variable needs to be reassigned, in a for loop, for example, use _let_ to declare it. Another important aspect of _let_ is that a variable declared using it is only available in the block scope in which it was defined. _Var_ is function scoped, not block-scoped, and shouldn't be used in ES6.
+
+### Require modules first, not inside functions
+Require modules at the beginning of each file, before and outside of any functions. This simple best practice will not only help you easily and quickly tell the dependencies of a file right at the top but also avoids a couple of potential problems.
+
+### Use Async Await, avoid callbacks
+Node 8 LTS now has full support for Async-await. This is a new way of dealing with asynchronous code which supersedes callbacks and promises. Async-await is non-blocking, and it makes asynchronous code look synchronous. The best gift you can give to your code is using async-await which provides a much more compact and familiar code syntax like try-catch.
+
+### Use arrow function expressions
+Though it's recommended to use async-await and avoid function parameters when dealing with older APIs that accept promises or callbacks - arrow functions make the code structure more compact and keep the lexical context of the root function.
+
+### Other conventions
+**Start a Codeblock's Curly Braces on the Same Line**: The opening curly braces of a code block should be on the same line as the opening statement.<br /><br />
+**Separate your statements properly**: No matter if you use semicolons or not to separate your statements, knowing the common pitfalls of improper linebreaks or automatic semicolon insertion, will help you to eliminate regular syntax errors.<br /><br />
+**Use the  `===`  operator**: Prefer the strict equality operator _===_ over the weaker abstract equality operator _==_. _==_ will compare two variables after converting them to a common type. There is no type conversion in _===_, and both variables must be of the same type to be equal.
+
+## Testing
+
+## Security and going to production
+
 
 # A sample project structure
 
