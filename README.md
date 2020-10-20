@@ -51,10 +51,9 @@ The article is intended for everyone (beginner or not) who wants to build a read
     - [Project structure](#project-structure)
     - [Errors](#errors)
     - [Code style](#code-style)
-    - [Testing](#testing)
+    - [Testing and overall quality](#testing-and-overall-quality)
     - [Security and going to production](#security-and-going-to-production)
  - [A sample project structure](#a-sample-project-structure)
- - [Build a RESTful API in Express from scratch](#build-a-restful-api-in-express-from-scratch)
  - [References](#references)
 
 # Definitions
@@ -722,7 +721,7 @@ The deprecated part must be emphasized in the API documentation and the client m
 
 # Best practices
 
-In this section, we will briefly mention some of the best practices you can follow while building a REST API in Node.js. Most of the information is taken from [4, 5, 7, 8].
+In this section, we will briefly mention some of the best practices you can follow while building a REST API in Node.js. Most of the content is taken from [4, 5, 7, 8].
 
 ## Naming conventions
 
@@ -809,14 +808,68 @@ Though it's recommended to use async-await and avoid function parameters when de
 **Separate your statements properly**: No matter if you use semicolons or not to separate your statements, knowing the common pitfalls of improper linebreaks or automatic semicolon insertion, will help you to eliminate regular syntax errors.<br /><br />
 **Use the  `===`  operator**: Prefer the strict equality operator _===_ over the weaker abstract equality operator _==_. _==_ will compare two variables after converting them to a common type. There is no type conversion in _===_, and both variables must be of the same type to be equal.
 
-## Testing
+## Testing and overall quality
+
+### At the very least, write API (component) testing
+Most projects just don't have any automated testing due to short timetables or often the 'testing project' ran out of control and was abandoned. For that reason, prioritize and start with API testing which is the easiest way to write and provides more coverage than unit testing (you may even craft API tests without code using tools like Postman. Afterward, should you have more resources and time, continue with advanced test types like unit testing, DB testing, performance testing, etc.
+
+### Include 3 parts in each test name
+Make the test speak at the requirements level so it's self-explanatory also to QA engineers and developers who are not familiar with the code internals. State in the test name what is being tested (unit under test), under what circumstances, and what is the expected result.
+
+### Structure tests by the AAA pattern
+Structure your tests with 3 well-separated sections: Arrange, Act & Assert (AAA). The first part includes the test setup, then the execution of the unit under test, and finally the assertion phase. Following this structure guarantees that the reader spends no brain CPU on understanding the test plan.
+
+### Detect code issues with a linter
+Use a code linter to check the quality and detect anti-patterns early. Run it before any test and add it as a pre-commit git-hook to minimize the time needed to review and correct any issue.
+
+### Avoid global test fixtures and seeds, add data per-test
+To prevent test coupling and easily reason about the test flow, each test should add and act on its own set of DB rows. Whenever a test needs to pull or assume the existence of some DB data - it must explicitly add that data and avoid mutating any other records.
+
+### Check your test coverage, it helps to identify wrong test patterns
+Code coverage tools like Istanbul/NYC are great for 3 reasons: it comes for free, it helps to identify a decrease in testing coverage, and last but not least it highlights testing mismatches: by looking at colored code coverage reports you may notice, for example, code areas that are never tested like catch clauses (meaning that tests only invoke the happy paths and not how the app behaves on errors). Set it to fail builds if the coverage falls under a certain threshold.
+
+### Constantly inspect for vulnerable dependencies
+Even the most reputable dependencies such as Express have known vulnerabilities. This can get easily tamed using community and commercial tools such as `npm audit` that can be invoked from your CI on every build.
+
+### Inspect for outdated packages
+Use your preferred tool (e.g. 'npm outdated' or 'npm-check-updates') to detect installed outdated packages, inject this check into your CI pipeline, and even make a build fail in a severe scenario. For example, a severe scenario might be when an installed package is 5 patch commits behind (e.g. local version is 1.3.1 and repository version is 1.3.8) or it is tagged as deprecated by its author - kill the build and prevent deploying this version.
+
+### Refactor regularly using static analysis tools
+Using static analysis tools helps by giving objective ways to improve code quality and keeps your code maintainable. You can add static analysis tools to your CI build to fail when it finds code smells. Its main selling points over plain linting are the ability to inspect quality in the context of multiple files (e.g. detect duplications), perform advanced analysis (e.g. code complexity), and follow the history and progress of code issues.
 
 ## Security and going to production
 
+### Monitoring
+Monitoring is a game of finding out issues before customers do – obviously, this should be assigned unprecedented importance. The market is overwhelmed with offers thus consider starting with defining the basic metrics you must follow, then go over additional fancy features and choose the solution that ticks all boxes.
+
+### Increase transparency using smart logging
+Logs can be a dumb warehouse of debug statements or the enabler of a beautiful dashboard that tells the story of your app. Plan your logging platform from day 1: how logs are collected, stored, and analyzed to ensure that the desired information (e.g. error rate, following an entire transaction through services and servers, etc) can really be extracted.
+
+### Delegate anything possible (e.g. gzip, SSL) to a reverse proxy
+Node is awfully bad at doing CPU intensive tasks like gzipping, SSL termination, etc. You should use ‘real’ middleware services like Nginx, HAproxy, or cloud vendor services instead.
+
+### Utilize all CPU cores
+At its basic form, a Node app runs on a single CPU core while all others are left idling. It’s your duty to replicate the Node process and utilize all CPUs – For small-medium apps you may use Node Cluster or PM2. For a larger app consider replicating the process using some Docker cluster (e.g. K8S, ECS) or deployment scripts that are based on the Linux init system (e.g. systemd).
+
+### Embrace linter security rules
+Make use of security-related linter plugins such as _eslint-plugin-security_ to catch security vulnerabilities and issues as early as possible, preferably while they're being coded. This can help to catch security weaknesses like using eval, invoking a child process, or importing a module with a string literal (e.g. user input).
+
+### Avoid using the Node.js crypto library for handling passwords, use Bcrypt
+Passwords or secrets (API keys) should be stored using a secure hash + salt function like _bcrypt_, which should be a preferred choice over its JavaScript implementation due to performance and security reasons.
+
+### Escape HTML, JS and CSS output
+Untrusted data that is sent down to the browser might get executed instead of just being displayed, this is commonly referred to as a cross-site-scripting (XSS) attack. Mitigate this by using dedicated libraries that explicitly mark the data as pure content that should never get executed (i.e. encoding, escaping).
+
+### Validate incoming JSON schemas
+Validate the incoming requests' body payload and ensure it meets expectations, fail fast if it doesn't. To avoid tedious validation coding within each route you may use lightweight JSON-based validation schemas such as _jsonschema_ or _joi_.
+
+### Support blacklisting JWTs
+When using JSON Web Tokens (for example, with _Passport.js_), by default there's no mechanism to revoke access from issued tokens. Once you discover some malicious user activity, there's no way to stop them from accessing the system as long as they hold a valid token. Mitigate this by implementing a blacklist of untrusted tokens that are validated on each request.
+
+### Limit payload size using a reverse-proxy or a middleware
+The bigger the body payload is, the harder your single thread works in processing it. This is an opportunity for attackers to bring servers to their knees without a tremendous amount of requests (DOS/DDOS attacks). Mitigate this by limiting the body size of incoming requests on the edge (e.g. firewall, ELB) or by configuring _express body parser_ to accept only small-size payloads.
 
 # A sample project structure
-
-# Build a RESTful API in Express from scratch
 
 # References
 - [[1] Roy Thomas Fielding: Architectural Styles and the Design of Network-based Software Architectures (Dissertation)](https://www.ics.uci.edu/~fielding/pubs/dissertation/fielding_dissertation.pdf)
