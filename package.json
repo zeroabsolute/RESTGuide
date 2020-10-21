@@ -4,7 +4,7 @@
   "description": "An opinionated guide on how to build a RESTful API",
   "main": "index.js",
   "scripts": {
-    "test": "npm run test",
+    "test": "nyc mocha --require @babel/register --timeout 30000 --exit \"./src/**/*.test.js*\"",
     "start": "nodemon --exec babel-node ./src/index.js",
     "build": "babel src --out-dir dist --copy-files"
   },
@@ -52,6 +52,7 @@
     "@babel/node": "^7.12.1",
     "@babel/plugin-proposal-optional-chaining": "^7.12.1",
     "@babel/preset-env": "^7.12.1",
+    "@babel/register": "^7.12.1",
     "babel-eslint": "^10.1.0",
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
