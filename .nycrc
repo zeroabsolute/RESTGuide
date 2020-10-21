@@ -13,7 +13,6 @@
     "lcov"
   ],
   "sourceMap": false,
-  "instrument": false,
   "check-coverage": true,
   "branches": 60,
   "lines": 70,
