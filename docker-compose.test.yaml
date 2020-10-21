@@ -1,0 +1,76 @@
+version: "3"
+services:
+  # Temporary container which sets up replica set
+  mongo-setup:
+    container_name: mongo-setup
+    image: mongo
+    restart: on-failure
+    networks:
+      default:
+    volumes:
+      - ./scripts:/scripts
+    entrypoint: [ "/scripts/mongo_replica_setup.sh" ]
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+
+  # Three mongodb instances
+  mongo1:
+    hostname: mongo1
+    container_name: mongo1
+    image: mongo
+    expose:
+      - 27018
+    ports:
+      - "27018:27018"
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0", "--journal", "--dbpath", "/data/db", "--enableMajorityReadConcern", "false", "--port", "27018" ]
+    volumes:
+      - ./data/mongo/test/data1/db:/data/db
+      - ./data/mongo/test/data1/configdb:/data/configdb
+  mongo2:
+    hostname: mongo2
+    container_name: mongo2
+    image: mongo
+    expose:
+      - 27019
+    ports:
+      - "27019:27019"
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0", "--journal", "--dbpath", "/data/db", "--enableMajorityReadConcern", "false", "--port", "27019" ]
+    volumes:
+      - ./data/mongo/test/data2/db:/data/db
+      - ./data/mongo/test/data2/configdb:/data/configdb
+  mongo3:
+    hostname: mongo3
+    container_name: mongo3
+    image: mongo
+    expose:
+      - 27020
+    ports:
+      - "27020:27020"
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0", "--journal", "--dbpath", "/data/db", "--enableMajorityReadConcern", "false", "--port", "27020" ]
+    volumes:
+      - ./data/mongo/test/data3/db:/data/db
+      - ./data/mongo/test/data3/configdb:/data/configdb
+
+  # Node.js Express API
+  api:
+    container_name: api
+    depends_on:
+      - mongo-setup
+      - mongo1
+      - mongo2
+      - mongo3
+    ports:
+      - "5000:5000"
+    build:
+      dockerfile: Dockerfile.test
+      context: .
+    volumes:
+      - /app/node_modules
+      - .:/app
+    environment:
+      NODE_ENV: test

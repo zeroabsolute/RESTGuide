@@ -104,3 +104,6 @@ dist
 
 # MacOS
 .DS_Store
+
+# Local data
+data
