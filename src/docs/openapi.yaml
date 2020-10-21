@@ -36,3 +36,86 @@ paths:
                   status: 
                     type: string
                     example: "OK"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT             
+  schemas:
+    Error:
+      properties:
+        code:
+          type: string
+          description: Debug Id
+        name: 
+          type: string
+          description: A human-readable error message
+        details: 
+          oneOf:
+            - type: string
+              description: A more specific human-readable error message
+            - type: object
+              description: A more specific human-readable error message together with some details
+            - type: array
+              description: An array with issues from multiple fields (e.g. input validation)
+
+  responses:
+    400:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            code: "ckgjkxvgl000431pp4xlpew2g"
+            message: "Your request contains invalid or missing data."
+            details: [{
+              message: "\"email\" must be a valid email",
+              path: ["email"],
+            }]
+    401:
+      description: Not Authenticated
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: "Unauthorized"
+    403:
+      description: Not Authorized / Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    404:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    422:
+      description: Unprocessable Entity
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    500:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  parameters:
+    skip:
+      name: skip
+      in: query
+      description: Number of records to skip (for pagination)
+      schema:
+        type: string
+    limit:
+      name: limit
+      in: query
+      description: Page size (for pagination)
+      schema:
+        type: string 
