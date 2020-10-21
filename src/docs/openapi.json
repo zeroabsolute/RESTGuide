@@ -1,0 +1,57 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "An opinionated guide on how to build a RESTful API",
+    "version": "1.0.0",
+    "title": "RESTGuide"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:{port}/{base_path}",
+      "description": "Local development server",
+      "variables": {
+        "port": {
+          "default": "5000"
+        },
+        "base_path": {
+          "default": "api/v1"
+        }
+      }
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Get server status",
+        "responses": {
+          "200": {
+            "description": "Server OK.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "appName": {
+                      "type": "string",
+                      "example": "RESTGuide"
+                    },
+                    "version": {
+                      "type": "string",
+                      "example": "1.0.0"
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "OK"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
