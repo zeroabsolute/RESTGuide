@@ -14,6 +14,9 @@ export const expressLoggerConfig = {
   streams: [
     {
       level: 'info',
+      obfuscate: [
+        'body.password', // all passwords
+      ],    
       path: Path.resolve(__dirname, `../../../../logs/${config.appName}-logs-info.log`),
       period: '3d',
       count: 3,
