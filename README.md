@@ -173,7 +173,7 @@ Below you can find a mapping of HTTP methods and the status codes they can retur
 |  | 200 Success | 201 Created | 202 Accepted | 204 No Content | 400 Bad Request | 404 Not Found | 422 Unprocessable Entity | 500 Internal Server Error |
 |---|---|---|---|---|---|---|---|---|
 | `GET` | X |   |   |   | X | X |**`X`**| X |
-| `POST` | X | X |**`X`**|   | X |**`X`**|**`X`**| X |
+| `POST` | X | X |**`X`**|**`X`**| X |**`X`**|**`X`**| X |
 | `PUT` | X |  |**`X`**| X | X | X |**`X`**| X |
 | `PATCH` | X |  |  | X | X | X |**`X`**| X |
 | `DELETE` | X |  |  | X | X | X |**`X`**| X |
