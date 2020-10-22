@@ -677,7 +677,8 @@ Every endpoint we implement must do exception handling. Errors and exceptions ha
 ### Schema
 A good and flexible representation for errors in REST APIs, based on many existing models, would be the following:
 - _code_: A unique identifier, which can be an integer or a hash. It will be used to identify the error (we can use only the status code for that since we can have multiple errors with the same status). 
-- _name_: A human-readable message, describing the error.
+- _name_: The type of the error (usually the name of the HTTP status code).
+- _message_: A human-readable message, describing the error in general.
 - _details_: This field could be an array or an object with more detailed information on the error. For example, if this is a validation error (i.e. status 400), the details field would be an array of objects, where each item would represent an invalid field and the validation error for that. If this is another error (i.e. thrown from a third-party library or service), we could put the error string as returned by the library to the details field.
 
 ## API versioning
