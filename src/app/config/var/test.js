@@ -5,4 +5,7 @@ export default {
   jwtSecretKey: '123467890',
   apiDocsUsername: 'username',
   apiDocsPassword: 'password',
+  mailService: 'sendgrid',
+  mailServiceApiKey: process.env.MAIL_SERVICE_API_KEY,
+  mailServiceSender: process.env.MAIL_SERVICE_SENDER,
 };
