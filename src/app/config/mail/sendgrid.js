@@ -3,7 +3,7 @@ import Sendgrid from '@sendgrid/mail';
 import errors from '../../constants/errors';
 import config from '../var';
 
-Sendgrid.setApiKey(config.mailServiceApiKey);
+Sendgrid.setApiKey(config.MAIL_SERVICE_API_KEY);
 
 /**
  * Creates and sends an email.
@@ -15,13 +15,13 @@ Sendgrid.setApiKey(config.mailServiceApiKey);
  * @param attachments: Attachments
  */
 
-export function sendEmail(params) {
+export const sendEmail = (params) => {
   return new Promise((resolve, reject) => {
     const body = {
       ...params,
       from: {
-        email: params.from || config.mailServiceSender,
-        name: config.appName
+        email: params.from || config.MAIL_SERVICE_SENDER,
+        name: config.APP_NAME
       },
     };
 

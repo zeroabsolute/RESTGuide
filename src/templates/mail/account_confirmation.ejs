@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Account Confirmation</title>
+  <style>
+    body {
+      background: linear-gradient(90deg, rgba(22, 109, 190, 1) 0%, rgba(48, 186, 214, 1) 100%);
+      color: white;
+      font-family: Helvetica, sans-serif;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .btn-container {
+      margin-top: 50px;
+      text-align: center;
+    }
+
+    .btn-container .btn-primary {
+      color: white;
+      text-decoration: none;
+      cursor: pointer;
+      background-color: rgba(20, 45, 68, 1);
+      padding: 15px 25px;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>RESTGuide</h1>
+  <p>Hi <%= user %>!</p>
+  <p>You have successfully created your account. Please, click on the link below to finalize your registration.</p>
+  <div class="btn-container">
+    <a href="<%= confirmationLink %>" class="btn-primary" itemprop="url">Confirm your account</a>
+  </div>
+
+</body>
+
+</html>
