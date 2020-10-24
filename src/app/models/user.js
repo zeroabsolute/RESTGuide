@@ -36,7 +36,26 @@ const schema = new Mongoose.Schema(
       type: Mongoose.Schema.Types.Boolean,
       default: false,
       required: true,
-    }
+    },
+    twoFactorAuth: {
+      type: {
+        active: { 
+          type: Mongoose.Schema.Types.Boolean, 
+          required: true, 
+          default: false 
+        },
+        secret: {
+          type: {
+            ascii: { type: 'String' },
+            hex: { type: 'String' },
+            base32: { type: 'String' },
+            otpauth_url: { type: 'String' },
+          },
+          required: false,
+        },
+      },
+      required: true,
+    },
   },
   { 
     timestamps: true,
