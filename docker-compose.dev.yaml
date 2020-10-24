@@ -75,3 +75,5 @@ services:
     environment:
       NODE_ENV: dev
       JWT_SECRET_KEY: "60RMBX4hCzt4QfYONtDP"
+      MAIL_SERVICE_API_KEY: "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"
+      MAIL_SERVICE_SENDER: "gerald.haxhi@softup.co"
