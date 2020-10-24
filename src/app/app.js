@@ -9,6 +9,7 @@ import routes from './routes';
 import config from './config/var';
 import { jwtAuth, basicAuth } from './config/authentication';
 import { initLoggerService, expressLoggerConfig } from './config/logger';
+import errorHandler from './helpers/error_middleware';
 
 const app = Express();
 
@@ -30,5 +31,6 @@ app.use(
   SwaggerUI.serve, 
   SwaggerUI.setup(swaggerDocument, false, { docExpansion: 'none' })
 );
+app.use(errorHandler);
 
 export default app;
