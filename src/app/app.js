@@ -33,4 +33,13 @@ app.use(
 );
 app.use(errorHandler);
 
+// Catch all unhandled errors and log them
+process.on('unhandledRejection', (reason) => {
+  throw reason;
+ });
+  
+ process.on('uncaughtException', (error) => {
+   errorHandler(error);
+ });
+
 export default app;
