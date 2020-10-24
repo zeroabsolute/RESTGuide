@@ -59,3 +59,6 @@ initDB()
           \n\n`
     );
   });
+
+
+export default server;
