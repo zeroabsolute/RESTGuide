@@ -63,6 +63,83 @@ components:
               description: A more specific human-readable error message together with some details
             - type: array
               description: An array with issues from multiple fields (e.g. input validation)
+    Author:
+      properties:
+        firstName:
+          type: string
+        lastName: 
+          type: string
+        genres: 
+          type: array
+          items:
+            type: string
+        createdAt: 
+          type: string
+          format: date-time
+        updatedAt: 
+          type: string
+          format: date-time
+    Book:
+      properties:
+        title:
+          type: string
+        author: 
+          type: string
+        pages: 
+          type: integer
+        genre:
+          type: string
+        publications:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+        images:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              url:
+                type: string
+                format: uri
+        createdAt: 
+          type: string
+          format: date-time
+        updatedAt: 
+          type: string
+          format: date-time
+    User:
+      properties:
+        email:
+          type: string
+          format: email
+        password: 
+          type: string
+          format: password
+        firstName:
+          type: string
+        lastName:
+          type: string
+        phoneNumber: 
+          type: string
+        confirmationLevel: 
+          type: integer
+          enum: [0, 1]
+        confirmationToken: 
+          type: string
+        isAdmin: 
+          type: boolean
+        createdAt: 
+          type: string
+          format: date-time
+        updatedAt: 
+          type: string
+          format: date-time
   responses:
     400:
       description: Bad Request

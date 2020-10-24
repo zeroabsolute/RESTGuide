@@ -71,6 +71,10 @@
           },
           "name": {
             "type": "string",
+            "description": "A human-readable error name"
+          },
+          "message": {
+            "type": "string",
             "description": "A human-readable error message"
           },
           "details": {
@@ -90,6 +94,123 @@
             ]
           }
         }
+      },
+      "Author": {
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "genres": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Book": {
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string"
+          },
+          "pages": {
+            "type": "integer"
+          },
+          "genre": {
+            "type": "string"
+          },
+          "publications": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "format": "date"
+                }
+              }
+            }
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              }
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "User": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "format": "password"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "confirmationLevel": {
+            "type": "integer",
+            "enum": [
+              0,
+              1
+            ]
+          },
+          "confirmationToken": {
+            "type": "string"
+          },
+          "isAdmin": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
       }
     },
     "responses": {
@@ -102,12 +223,13 @@
             },
             "example": {
               "code": "ckgjkxvgl000431pp4xlpew2g",
-              "message": "Your request contains invalid or missing data.",
+              "name": "Bad Request",
+              "message": "Your request contains invalid or missing data",
               "details": [
                 {
-                  "message": "\"email\" must be a valid email",
+                  "message": "\"{fieldName}\" must be a valid {fieldType}",
                   "path": [
-                    "email"
+                    "{pathToField}"
                   ]
                 }
               ]
@@ -116,7 +238,7 @@
         }
       },
       "401": {
-        "description": "Not Authenticated",
+        "description": "Not authenticated",
         "content": {
           "text/plain": {
             "schema": {
@@ -127,21 +249,31 @@
         }
       },
       "403": {
-        "description": "Not Authorized / Forbidden",
+        "description": "Not authorized / Forbidden",
         "content": {
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "code": "ckgjkxvgl000431pp4xlpew2g",
+              "name": "Not Authorized / Forbidden",
+              "message": "Your request cannot be completed due to missing permissions"
             }
           }
         }
       },
       "404": {
-        "description": "Not Found",
+        "description": "No results found",
         "content": {
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "code": "ckgjkxvgl000431pp4xlpew2g",
+              "name": "Not Found",
+              "message": "The requested item was not found"
             }
           }
         }
@@ -152,6 +284,11 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "code": "ckgjkxvgl000431pp4xlpew2g",
+              "name": "Unprocessable Entity",
+              "message": "Your request was understood but could not be completed due to semantic errors"
             }
           }
         }
@@ -162,6 +299,11 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "code": "ckgjkxvgl000431pp4xlpew2g",
+              "name": "Internal Server Error",
+              "message": "Operation cannot be completed due to a problem"
             }
           }
         }
