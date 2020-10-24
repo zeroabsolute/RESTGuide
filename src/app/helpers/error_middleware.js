@@ -25,8 +25,7 @@ export default (err, req, res, next) => {
 
   error.setPath(fullPath);
   getLogger().error(error.printForLogging());
-  
   if (!error.logOnly) {
-    res.status(err.getCode()).json(error.printForHTTPResponse());
+    res.status(error.getCode()).json(error.printForHTTPResponse());
   }
 };

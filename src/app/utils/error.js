@@ -24,7 +24,7 @@ export class GeneralError extends Error {
       code: this.debugId,
       name: this.name,
       message: this.message,
-      details: this.details,
+      details: this.code === 500 ? '' : this.details,
     };
   }
 
