@@ -42,7 +42,7 @@ components:
     bearerAuth:
       type: http
       scheme: bearer
-      bearerFormat: JWT             
+      bearerFormat: JWT
   schemas:
     Error:
       properties:
@@ -50,6 +50,9 @@ components:
           type: string
           description: Debug Id
         name: 
+          type: string
+          description: A human-readable error name
+        message: 
           type: string
           description: A human-readable error message
         details: 
@@ -60,7 +63,6 @@ components:
               description: A more specific human-readable error message together with some details
             - type: array
               description: An array with issues from multiple fields (e.g. input validation)
-
   responses:
     400:
       description: Bad Request
@@ -69,43 +71,60 @@ components:
           schema:
             $ref: "#/components/schemas/Error"
           example:
-            code: "ckgjkxvgl000431pp4xlpew2g"
-            message: "Your request contains invalid or missing data."
+            code: ckgjkxvgl000431pp4xlpew2g
+            name: Bad Request
+            message: Your request contains invalid or missing data
             details: [{
-              message: "\"email\" must be a valid email",
-              path: ["email"],
+              message: "\"{fieldName}\" must be a valid {fieldType}",
+              path: ["{pathToField}"],
             }]
     401:
-      description: Not Authenticated
+      description: Not authenticated
       content:
         text/plain:
           schema:
             type: string
             example: "Unauthorized"
     403:
-      description: Not Authorized / Forbidden
+      description: Not authorized / Forbidden
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
+          example:
+            code: ckgjkxvgl000431pp4xlpew2g
+            name: Not Authorized / Forbidden
+            message: Your request cannot be completed due to missing permissions
     404:
-      description: Not Found
+      description: No results found
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
+          example:
+            code: ckgjkxvgl000431pp4xlpew2g
+            name: Not Found
+            message: The requested item was not found
     422:
       description: Unprocessable Entity
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
+          example:
+            code: ckgjkxvgl000431pp4xlpew2g
+            name: Unprocessable Entity
+            message: Your request was understood but could not be completed due to semantic errors
     500:
       description: Internal Server Error
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
+          example:
+            code: ckgjkxvgl000431pp4xlpew2g
+            name: Internal Server Error
+            message: Operation cannot be completed due to a problem
   parameters:
     skip:
       name: skip
