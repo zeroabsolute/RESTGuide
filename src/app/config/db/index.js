@@ -7,7 +7,7 @@ Mongoose.set('useNewUrlParser', true);
 Mongoose.set('useFindAndModify', false);
 Mongoose.set('useCreateIndex', true);
 
-function init() {
+const init = () => {
   return new Promise((resolve, reject) => {
     Mongoose
       .connect(config.databaseUrl, { 
@@ -20,6 +20,6 @@ function init() {
       .then(() => resolve())
       .catch((err) => reject(err));
   });
-}
+};
 
 export default init;

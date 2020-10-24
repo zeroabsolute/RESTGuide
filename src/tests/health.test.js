@@ -5,7 +5,7 @@ import server from '../app/app';
 
 Chai.use(ChaiHTTP);
 
-describe(`Test "Health" endpoint`, function () {
+describe(`Test "Health" endpoint`, () => {
 
   /**
    * Endpoint: "GET /health"

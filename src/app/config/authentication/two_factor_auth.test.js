@@ -2,7 +2,7 @@ import { expect } from 'chai';
 
 import * as tfa from './two_factor_auth';
 
-describe(`Test 2FA`, function () {
+describe(`Test 2FA`, () => {
   let sampleSecretKey = null;
   let sampleTokenFromGoogleAuthenticator = null;
 
