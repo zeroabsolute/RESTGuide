@@ -1,4 +1,3 @@
-import { object } from 'joi';
 import Util from 'util';
 
 import { getLogger } from '../config/logger';
