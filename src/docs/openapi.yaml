@@ -393,18 +393,52 @@ paths:
         200:
           description: Token is valid
         400:
-          $ref: "#/components/responses/400"
+          description: Bad Request
         401:
-          $ref: "#/components/responses/401"
+          description: Not Authenticated
         404:
           description: Not Found
+        422:
+          description: Unprocessable Entity
+        500:
+          description: Internal Server Error
+  /authors:
+    post:
+      tags: 
+        - Authors
+      summary: Create author (Admin only)
+      description: Adds a new author.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - firstName
+                - lastName
+                - genres
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                genres:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: string
+      responses:
+        201:
+          description: Author created successfully.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
-              examples:
-                userNotFound:
-                  $ref: "#/components/examples/UserNotFound"
+                $ref: "#/components/schemas/Author"
+        400:
+          $ref: "#/components/responses/400"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
           description: Unprocessable Entity
           content:
@@ -412,20 +446,148 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
               examples:
-                twoFANotEnabled:
+                authorExists:
                   value:
                     code: ckgjkxvgl000431pp4xlpew2g
                     name: Unprocessable Entity
                     message: Your request was understood but could not be completed due to semantic errors
-                    details: Two-factor authentication is not enabled for your account
-                  summary: Two-factor authentication not enabled
-                invalidToken:
+                    details: An author with the same name already exists
+                  summary: Author exists
+        500:
+          $ref: "#/components/responses/500"
+    get:
+      tags: 
+        - Authors
+      summary: Read authors
+      description: Reads authors. Supports search by genre and projected responses.
+      parameters: 
+        - name: genre
+          in: query
+          description: Genre
+          schema:
+            type: string
+          example: "dystopian_fiction"
+        - name: fields
+          in: query
+          description: Projected fields
+          schema:
+            type: string
+          example: "firstName,lastName,genres"
+      responses:
+        200:
+          description: Authors read successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Author"
+        400:
+          $ref: "#/components/responses/400"
+        401:
+          $ref: "#/components/responses/401"
+        500:
+          $ref: "#/components/responses/500"
+  /authors/{id}:
+    get:
+      tags: 
+        - Authors
+      summary: Read one author
+      description: Reads one author by Id.
+      parameters: 
+        - name: id
+          in: path
+          description: Author Id
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: Author read successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Author"
+        401:
+          $ref: "#/components/responses/401"
+        404:
+          $ref: "#/components/responses/404"
+        500:
+          $ref: "#/components/responses/500"
+    patch:
+      tags: 
+        - Authors
+      summary: Update author (Admin only)
+      description: Updates an existing author.
+      parameters: 
+        - name: id
+          in: path
+          description: Author Id
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                genres:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: string
+      responses:
+        204:
+          description: Author updated successfully.
+        400:
+          $ref: "#/components/responses/400"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        422:
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                authorExists:
                   value:
                     code: ckgjkxvgl000431pp4xlpew2g
                     name: Unprocessable Entity
                     message: Your request was understood but could not be completed due to semantic errors
-                    details: The provided token is not valid
-                  summary: Invalid token
+                    details: An author with the same name already exists
+                  summary: Author exists
+        500:
+          $ref: "#/components/responses/500"
+    delete:
+      tags: 
+        - Authors
+      summary: Delete author (Admin only)
+      description: Deletes an existing author.
+      parameters: 
+        - name: id
+          in: path
+          description: Author Id
+          schema:
+            type: string
+          required: true
+      responses:
+        204:
+          description: Author deleted successfully.
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
         500:
           $ref: "#/components/responses/500"
 
@@ -564,14 +726,14 @@ components:
               path: ["{pathToField}"],
             }]
     401:
-      description: Not authenticated
+      description: Not Authenticated
       content:
         text/plain:
           schema:
             type: string
             example: "Unauthorized"
     403:
-      description: Not authorized / Forbidden
+      description: Not Authorized / Forbidden
       content:
         application/json:
           schema:
@@ -581,7 +743,7 @@ components:
             name: Not Authorized / Forbidden
             message: Your request cannot be completed due to missing permissions
     404:
-      description: No results found
+      description: Not Found
       content:
         application/json:
           schema:
