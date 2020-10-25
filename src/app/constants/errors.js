@@ -6,4 +6,5 @@ export default {
   USER_NOT_FOUND_OR_ACCOUNT_CONFIRMED: 'The requested user does not exist, or the account is already confirmed',
   INVALID_2FA_TOKEN: 'The provided token is not valid',
   NO_2FA: 'Two-factor authentication is not enabled for your account',
+  AUTHOR_EXISTS: 'An author with the same name already exists',
 };
