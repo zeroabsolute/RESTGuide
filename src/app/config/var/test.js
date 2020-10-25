@@ -8,4 +8,6 @@ export default {
   mailService: 'sendgrid',
   mailServiceApiKey: process.env.MAIL_SERVICE_API_KEY,
   mailServiceSender: process.env.MAIL_SERVICE_SENDER,
+  vapidPublicKey: process.env.VAPID_PUBLIC_KEY,
+  vapidPrivateKey: process.env.VAPID_PRIVATE_KEY,
 };

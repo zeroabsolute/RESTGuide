@@ -14,7 +14,7 @@ import mailService from '../app/config/mail';
 
 Chai.use(ChaiHTTP);
 
-describe(`Test "Auth" endpoints`, function () {
+describe(`Test "Auth" endpoints`, () => {
   const email = Faker.internet.email();
   let confirmationToken = null;
   const password = 'Ran@0m?pass';
@@ -22,7 +22,7 @@ describe(`Test "Auth" endpoints`, function () {
   let twoStepAuthSecretKey = null;
   let sendEmailStub = null;
 
-  before(async function () {
+  before(async () => {
     await User.deleteMany({});
     sendEmailStub = Sinon.stub(mailService, 'sendEmail').resolves();
   });
@@ -305,7 +305,7 @@ describe(`Test "Auth" endpoints`, function () {
     Chai.expect(response.status).to.equal(200);
   });
 
-  after(async function () {
+  after(async () => {
     await User.deleteMany({});
     sendEmailStub.restore();
   });
