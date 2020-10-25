@@ -6,6 +6,7 @@
   "scripts": {
     "lint": "eslint \"./src/**/*.js\"",
     "test": "cross-env NODE_ENV=test nyc mocha --require @babel/register --timeout 30000 --exit \"./src/**/*.test.js*\"",
+    "test:only": "cross-env NODE_ENV=test mocha --timeout 30000 --exit --require @babel/register $1",
     "start": "nodemon --exec babel-node ./src/index.js",
     "build": "babel src --out-dir dist --copy-files"
   },
