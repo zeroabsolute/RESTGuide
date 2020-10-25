@@ -1,3 +1,6 @@
+import { object } from 'joi';
+import Util from 'util';
+
 import { getLogger } from '../config/logger';
 import { GeneralError, InternalError } from '../utils/error';
 
@@ -20,7 +23,7 @@ export default (err, req, res, next) => {
   }
 
   if (!(err instanceof GeneralError)) {
-    error = new InternalError(err);
+    error = new InternalError(typeof (err) === 'object' ? Util.inspect(err) : err);
   }
 
   error.setPath(fullPath);
