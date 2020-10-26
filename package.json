@@ -28,6 +28,7 @@
   },
   "homepage": "https://github.com/zeroabsolute/RESTGuide#readme",
   "dependencies": {
+    "@hapi/joi-date": "^2.0.1",
     "@sendgrid/mail": "^7.3.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",

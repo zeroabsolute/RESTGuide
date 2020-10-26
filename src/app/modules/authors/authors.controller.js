@@ -42,7 +42,13 @@ export const readAuthors = async (req, res, next) => {
     const query = {};
     const projection = req.query?.fields 
       ? req.query.fields.split(',') 
-      : ['firstName', 'lastName', 'genres'];
+      : [
+          'firstName', 
+          'lastName', 
+          'genres',
+          'createdAt',
+          'updatedAt'
+        ];
 
     if (req.query?.genres) {
       query.genres = req.query.genre;

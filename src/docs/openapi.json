@@ -629,6 +629,11 @@
     },
     "/authors": {
       "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "tags": [
           "Authors"
         ],
@@ -709,6 +714,11 @@
         }
       },
       "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "tags": [
           "Authors"
         ],
@@ -762,6 +772,11 @@
     },
     "/authors/{id}": {
       "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "tags": [
           "Authors"
         ],
@@ -801,6 +816,11 @@
         }
       },
       "patch": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "tags": [
           "Authors"
         ],
@@ -883,6 +903,11 @@
         }
       },
       "delete": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "tags": [
           "Authors"
         ],
@@ -902,6 +927,309 @@
         "responses": {
           "204": {
             "description": "Author deleted successfully."
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/books": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Books"
+        ],
+        "summary": "Create book (Admin only)",
+        "description": "Adds a new book.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": [
+                  "title",
+                  "author",
+                  "pages",
+                  "genre",
+                  "publications"
+                ],
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "author": {
+                    "type": "string"
+                  },
+                  "pages": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "genre": {
+                    "type": "string"
+                  },
+                  "publications": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "date"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Book created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Book"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      },
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Books"
+        ],
+        "summary": "Read books",
+        "description": "Reads books. Supports search by genre and projected responses.",
+        "parameters": [
+          {
+            "name": "genre",
+            "in": "query",
+            "description": "Genre",
+            "schema": {
+              "type": "string"
+            },
+            "example": "dystopian_fiction"
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "Projected fields",
+            "schema": {
+              "type": "string"
+            },
+            "example": "firstName,lastName,genres"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Books read successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Book"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/books/{id}": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Books"
+        ],
+        "summary": "Read one book",
+        "description": "Reads one book by Id.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Book Id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Book read successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Book"
+                    }
+                  ],
+                  "properties": {
+                    "author": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/Author"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      },
+      "patch": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Books"
+        ],
+        "summary": "Update book (Admin only)",
+        "description": "Updates an existing book.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Book Id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "author": {
+                    "type": "string"
+                  },
+                  "pages": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "genre": {
+                    "type": "string"
+                  },
+                  "publications": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "date"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Book updated successfully."
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Books"
+        ],
+        "summary": "Delete book (Admin only)",
+        "description": "Deletes an existing book.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Book Id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Book deleted successfully."
           },
           "401": {
             "$ref": "#/components/responses/401"
