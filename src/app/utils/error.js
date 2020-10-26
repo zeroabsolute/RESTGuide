@@ -1,3 +1,4 @@
+import Util from 'util';
 import Cuid from 'cuid';
 
 export class GeneralError extends Error {
@@ -35,7 +36,9 @@ export class GeneralError extends Error {
       name: this.name,
       message: this.message,
       path: this.path,
-      details: this.details,
+      details: typeof (this.details) === 'object'
+        ? Util.inspect(this.details)
+        : this.details,
     };
   }
 
