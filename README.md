@@ -1,6 +1,6 @@
 # RESTGuide
 
-*An opinionated guide on how to build a RESTful API in with Node.js and Express*
+*An opinionated guide on how to build a RESTful API with Node.js and Express*
 
 Gerald Haxhi<br />
 Softup Technologies<br />
@@ -170,13 +170,13 @@ The most used status codes in RESTful APIs [11]:
 
 Below you can find a mapping of HTTP methods and the status codes they can return (taken from [2]). For each HTTP method, API developers should use only status codes marked as "X" in this table. If an API needs to return any of the status codes marked with an **`X`**, then the use case should be reviewed as part of the API design review process and maturity level assessment. Most of these status codes are used to support very rare use cases (more info can be found in [2]).
 
-|  | 200 Success | 201 Created | 202 Accepted | 204 No Content | 400 Bad Request | 404 Not Found | 422 Unprocessable Entity | 500 Internal Server Error |
-|---|---|---|---|---|---|---|---|---|
-| `GET` | X |   |   |   | X | X |**`X`**| X |
-| `POST` | X | X |**`X`**|**`X`**| X |**`X`**|**`X`**| X |
-| `PUT` | X |  |**`X`**| X | X | X |**`X`**| X |
-| `PATCH` | X |  |  | X | X | X |**`X`**| X |
-| `DELETE` | X |  |  | X | X | X |**`X`**| X |
+|  | 200 Success | 201 Created | 202 Accepted | 204 No Content | 400 Bad Request  | 401 Unauthorized | 403 Forbidden | 404 Not Found | 422 Unprocessable Entity | 500 Internal Server Error |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `GET` | X |   |   |   | X | X | X | X |**`X`**| X |
+| `POST` | X | X |**`X`**|**`X`**| X  | X | X |**`X`**|**`X`**| X |
+| `PUT` | X |  |**`X`**| X | X  | X | X | X |**`X`**| X |
+| `PATCH` | X |  |  | X | X  | X | X | X |**`X`**| X |
+| `DELETE` | X |  |  | X | X  | X | X | X |**`X`**| X |
 
 
 ## Main operations 
@@ -259,6 +259,8 @@ The most common status codes that could be returned from a POST request are the 
 - 202 Accepted: This status is returned in case of asynchronous operations when you want to return control to the client and continue doing background work.
 - 204 No Content: This is similar to the 200 situation, but in this case, the processing does not return a result.
 - 400 Bad Request: This status is returned when the format of the request body is not correct.
+- 401 Unauthorized: When the client is not authenticated.
+- 403 Forbidden: When the client does not have permission to access the resource.
 - 404 Not Found: When the resource is not found.
 - 422 Unprocessable Entity: This is returned when the request body is correct, but the operation cannot be performed due to semantic errors. 
 - 500 Internal Server Error: This is returned when the request cannot be satisfied because of some unexpected error in the server. 
@@ -304,6 +306,8 @@ GET /v1/interests/books
 The most common status codes that could be returned from a GET request are the following:
 - 200 Success: Most of the cases, either when there are results on the array, or when the array is empty.
 - 400 Bad Request: This status is returned when the format of the request (e.g. query params) is not correct.
+- 401 Unauthorized
+- 403 Forbidden
 - 404 Not Found: When the resource is not found. This is returned only if the URL is not found. If the URL is correct and there are no results, we must return status 200 and an empty array of results.
 - 422 Unprocessable Entity: This is returned when the params are correct, but the operation cannot be performed due to semantic errors. 
 - 500 Internal Server Error.
@@ -370,6 +374,8 @@ GET /v1/interests/books/5e96bd5641971b0117987a43
 The most common status codes that could be returned from a GET request for a single resource are the following:
 - 200 Success: When the resource is found.
 - 400 Bad Request
+- 401 Unauthorized
+- 403 Forbidden
 - 404 Not Found: When the resource on the given URL is not found.
 - 422 Unprocessable Entity 
 - 500 Internal Server Error
@@ -412,6 +418,8 @@ The most common status codes that could be returned from a PUT request are the f
 - 202 Accepted: This status is returned in case of asynchronous operations when you want to return control to the client and continue doing background work.
 - 204 No Content: This is the standard success status for PUT requests. If we don't have any server-generated values that the client needs, we just send back a 204 and there is no need to echo the request body (this saves bandwidth).
 - 400 Bad Request
+- 401 Unauthorized
+- 403 Forbidden
 - 404 Not Found
 - 422 Unprocessable Entity
 - 500 Internal Server Error
@@ -449,6 +457,8 @@ The most common status codes that could be returned from a PATCH request are the
 - 200 Success: Rare case. This status is returned only in those cases when the client needs the new representation. We return 200 and the updated object in the response body.  
 - 204 No Content: This is the standard success status for PATCH requests.
 - 400 Bad Request
+- 401 Unauthorized
+- 403 Forbidden
 - 404 Not Found
 - 422 Unprocessable Entity
 - 500 Internal Server Error
@@ -519,6 +529,8 @@ The most common status codes that could be returned from a DELETE request are th
 - 200 Success: Rare case. This status is returned only in those cases when there is some server-generated value that the client needs after the delete.
 - 204 No Content: This is the standard success status for DELETE requests.
 - 400 Bad Request
+- 401 Unauthorized
+- 403 Forbidden
 - 404 Not Found
 - 422 Unprocessable Entity
 - 500 Internal Server Error
@@ -547,6 +559,8 @@ HEAD /v1/interests/books/5e96bd5641971b0117987a43
 The most common status codes that could be returned from a HEAD request are the following:
 - 200 Success: When the requested resource exists.
 - 400 Bad Request
+- 401 Unauthorized
+- 403 Forbidden
 - 404 Not Found
 - 422 Unprocessable Entity
 - 500 Internal Server Error
@@ -676,10 +690,10 @@ Every endpoint we implement must do exception handling. Errors and exceptions ha
 
 ### Schema
 A good and flexible representation for errors in REST APIs, based on many existing models, would be the following:
-- _code_: A unique identifier, which can be an integer or a hash. It will be used to identify the error (we can use only the status code for that since we can have multiple errors with the same status). 
-- _name_: The type of the error (usually the name of the HTTP status code).
-- _message_: A human-readable message, describing the error in general.
-- _details_: This field could be an array or an object with more detailed information on the error. For example, if this is a validation error (i.e. status 400), the details field would be an array of objects, where each item would represent an invalid field and the validation error for that. If this is another error (i.e. thrown from a third-party library or service), we could put the error string as returned by the library to the details field.
+-  _code_: A unique identifier, which can be an integer or a hash. It will be used to identify the error (we can use only the status code for that since we can have multiple errors with the same status).
+-  _name_: The type of the error (usually the name of the HTTP status code).
+-  _message_: A human-readable message, describing the error in general.
+-  _details_: This field could be an array or an object with more detailed information on the error. For example, if this is a validation error (i.e. status 400), the details field would be an array of objects, where each item would represent an invalid field and the validation error for that. If this is another error (i.e. thrown from a third-party library or service), we could put the error string as returned by the library to the details field.
 
 ## API versioning
 
