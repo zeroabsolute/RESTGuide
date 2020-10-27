@@ -1,0 +1,24 @@
+import Multer from 'multer';
+
+import config from '../var';
+import * as minioDriver from './minio';
+
+let fileUploadService = minioDriver;
+
+switch (config.fileUploadService) {
+  case 'minio':
+    fileUploadService = minioDriver;
+    break;
+  default:
+    fileUploadService = minioDriver;
+    break;
+}
+
+export default fileUploadService;
+
+export const multerConfigForMemoryStorage = {
+  storage: Multer.memoryStorage(),
+  limits: {
+    fieldSize: 500000,
+  },
+};

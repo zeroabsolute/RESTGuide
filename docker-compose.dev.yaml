@@ -79,3 +79,20 @@ services:
       MAIL_SERVICE_SENDER: ${MAIL_SERVICE_SENDER}
       VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY}
       VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY}
+      MINIO_ACCESS_KEY: "HoXQeYqzORTxLznLEdhI"
+      MINIO_SECRET_KEY: "VKcXmMdftliEPqVSsOKk"
+      MINIO_URL: "minio"
+      MINIO_PORT: 9000
+
+  # MinIO
+  minio:
+    container_name: minio
+    image: minio/minio
+    volumes:
+      - ./data/minio/test:/data
+    ports:
+      - "9000:9000"
+    environment:
+      MINIO_ACCESS_KEY: "HoXQeYqzORTxLznLEdhI"
+      MINIO_SECRET_KEY: "VKcXmMdftliEPqVSsOKk"
+    command: server /data

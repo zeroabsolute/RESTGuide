@@ -9,13 +9,22 @@ import routes from './routes';
 import config from './config/var';
 import { jwtAuth, basicAuth } from './config/authentication';
 import { initLoggerService, expressLoggerConfig } from './config/logger';
+import fileService from './config/file_upload';
 import errorHandler from './helpers/error_middleware';
+import buckets from './constants/buckets';
 
 const app = Express();
 
+// Service initializations
 jwtAuth();
 initLoggerService();
 
+fileService.initFileUploadService();
+setTimeout(() => {
+  fileService.createBucket(buckets.DEFAULT);
+}, 500);
+
+// Express app config
 app.use(BodyParser.json({ limit: '10mb' }));
 app.use(BodyParser.urlencoded({ limit: '10mb', extended: false }));
 app.use(Cors());

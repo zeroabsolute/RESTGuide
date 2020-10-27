@@ -10,4 +10,9 @@ export default {
   mailServiceSender: process.env.MAIL_SERVICE_SENDER,
   vapidPublicKey: process.env.VAPID_PUBLIC_KEY,
   vapidPrivateKey: process.env.VAPID_PRIVATE_KEY,
+  fileUploadService: 'minio',
+  fileUploadServiceUrl: process.env.MINIO_URL,
+  fileUploadServicePort: process.env.MINIO_PORT,
+  fileUploadServiceAccessKey: process.env.MINIO_ACCESS_KEY,
+  fileUploadServiceSecretKey: process.env.MINIO_SECRET_KEY,
 };
