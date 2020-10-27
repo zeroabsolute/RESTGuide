@@ -5,7 +5,7 @@ import { NotAuthorized } from '../../utils/error';
  */
 
 export const updateBookAuthorization = (req, res, next) => {
-  if (!req.user?.isAdmin) {
+  if (!req.user.isAdmin) {
     return next(new NotAuthorized());
   }
 
