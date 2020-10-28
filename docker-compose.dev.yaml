@@ -60,6 +60,7 @@ services:
   api:
     container_name: api
     depends_on:
+      - minio
       - mongo-setup
       - mongo1
       - mongo2
