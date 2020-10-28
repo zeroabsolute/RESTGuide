@@ -104,7 +104,7 @@ export function removeFile(bucketName, fileName) {
  */
 
 export function getPublicURL(bucketName, fileName) {
-  return `${config.FILE_UPLOAD_SERVICE_EXTERNAL_URL}/${bucketName}/${fileName}`;
+  return `${config.fileUploadServiceExternalUrl}/${bucketName}/${fileName}`;
 }
 
 export function getService () { 

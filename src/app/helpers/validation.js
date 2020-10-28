@@ -1,9 +1,9 @@
-const allowedImageTypes = ['image/jpg', 'image/jpeg', 'image/png'];
-const allowedDocTypes = [
+export const allowedImageTypes = ['image/jpg', 'image/jpeg', 'image/png'];
+export const allowedDocTypes = [
   'application/pdf', 
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 ];
-const allowedFileTypes = [...allowedDocTypes, ...allowedImageTypes];
+export const allowedFileTypes = [...allowedDocTypes, ...allowedImageTypes];
 
 /**
  * Regex-es.

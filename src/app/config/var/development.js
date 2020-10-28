@@ -15,4 +15,5 @@ export default {
   fileUploadServicePort: process.env.MINIO_PORT,
   fileUploadServiceAccessKey: process.env.MINIO_ACCESS_KEY,
   fileUploadServiceSecretKey: process.env.MINIO_SECRET_KEY,
+  fileUploadServiceExternalUrl: process.env.MINIO_EXTERNAL_URL,
 };

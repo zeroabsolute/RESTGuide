@@ -1,5 +1,7 @@
 import Book from '../../models/book';
 import { InternalError, NotFound } from '../../utils/error';
+import { uploadFile, removeFile } from '../../helpers/files';
+import buckets from '../../constants/buckets';
 
 /**
  * Create book
@@ -7,7 +9,7 @@ import { InternalError, NotFound } from '../../utils/error';
 
 export const createBook = async (req, res, next) => {
   try {
-    const body = new Book({ 
+    const body = new Book({
       ...req.body,
       publications: req.body.publications.map((item) => ({
         date: new Date(item)
@@ -28,18 +30,18 @@ export const createBook = async (req, res, next) => {
 export const readBooks = async (req, res, next) => {
   try {
     const query = {};
-    const projection = req.query?.fields 
-      ? req.query.fields.split(',') 
+    const projection = req.query?.fields
+      ? req.query.fields.split(',')
       : [
-          'title', 
-          'author', 
-          'pages',
-          'genre',
-          'publications',
-          'images',
-          'createdAt',
-          'updatedAt',
-        ];
+        'title',
+        'author',
+        'pages',
+        'genre',
+        'publications',
+        'images',
+        'createdAt',
+        'updatedAt',
+      ];
 
     if (req.query?.genre) {
       query.genre = {
@@ -119,6 +121,108 @@ export const deleteBook = async (req, res, next) => {
 
       return;
     }
+
+    res.sendStatus(204);
+  } catch (e) {
+    next(new InternalError(e));
+  }
+};
+
+/**
+ * Upload images
+ */
+
+export const uploadImages = async (req, res, next) => {
+  try {
+    const book = await Book.findById(req.params.id);
+
+    if (!book) {
+      next(new NotFound());
+
+      return;
+    }
+
+    const result = [];
+    const itemsToAdd = [];
+
+    for (let i = 0; i < req.files.length; i += 1) {
+      try {
+        const uploadResult = await uploadFile(req.files[i], buckets.DEFAULT);
+
+        itemsToAdd.push({
+          name: uploadResult.name,
+          url: uploadResult.url,
+        });
+        result.push({
+          status: 'SUCCESS',
+          result: {
+            name: uploadResult.name,
+            url: uploadResult.url,
+          },
+        });
+      } catch (e) {
+        result.push({
+          status: 'ERROR',
+          result: {
+            name: req.files[i].originalname,
+          },
+        });
+      }
+    }
+
+    await Book.findByIdAndUpdate(
+      req.params.id,
+      {
+        $push: {
+          images: {
+            $each: itemsToAdd,
+          },
+        }
+      },
+      { new: true }
+    );
+
+    res.status(200).json(result);
+  } catch (e) {
+    next(new InternalError(e));
+  }
+};
+
+/**
+ * Delete images
+ */
+
+export const deleteImage = async (req, res, next) => {
+  try {
+    const book = await Book.findById(req.params.bookId);
+
+    if (!book) {
+      next(new NotFound());
+
+      return;
+    }
+
+    const itemToDelete = book.images.find(
+      (item) => item._id.equals(req.params.imageId)
+    );
+
+    if (!itemToDelete) {
+      next(new NotFound());
+
+      return;
+    }
+
+    await removeFile(itemToDelete.url, buckets.DEFAULT);
+    await Book.findByIdAndUpdate(
+      req.params.bookId,
+      {
+        $pull: {
+          images: {
+            _id: itemToDelete._id
+          },
+        }
+      },
+    );
 
     res.sendStatus(204);
   } catch (e) {
