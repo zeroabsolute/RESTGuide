@@ -15,19 +15,20 @@ export default (err, req, res, next) => {
     fullPath = `${req.method} ${req.originalUrl}`;
   }
 
-  if (res?.headersSent) {
-    next(err); // pass error to default express handler
-
-    return;
-  }
-
   if (!(err instanceof GeneralError)) {
     error = new InternalError(typeof (err) === 'object' ? Util.inspect(err) : err);
   }
 
   error.setPath(fullPath);
   getLogger().error(error.printForLogging());
+
+  if (res?.headersSent) {
+    next(err); // pass error to default express handler
+
+    return;
+  }
+  
   if (!error.logOnly) {
-    res.status(error.getCode()).json(error.printForHTTPResponse());
+    res?.status(error.getCode()).json(error.printForHTTPResponse());
   }
 };
