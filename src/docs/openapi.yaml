@@ -787,6 +787,93 @@ paths:
           $ref: "#/components/responses/404"
         500:
           $ref: "#/components/responses/500"
+  /books/{id}/images/bulk:
+    post:
+      security:
+        - bearerAuth: []
+      tags: 
+        - Books
+      summary: Add book images (Admin only)
+      description: Uplaod images for one book.
+      parameters: 
+        - name: id
+          in: path
+          description: Book Id
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        200:
+          description: Images uploaded successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  properties:
+                    status:
+                      type: string
+                      enum: ['SUCCESS', 'ERROR']
+                    result:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        url:
+                          type: string
+                          format: uri
+                          description: Only if the upload succeeded
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        500:
+          $ref: "#/components/responses/500"
+  /books/{book_id}/images/{image_id}:
+    delete:
+      security:
+        - bearerAuth: []
+      tags: 
+        - Books
+      summary: Delete book image (Admin only)
+      description: Delete an image from a book.
+      parameters: 
+        - name: book_id
+          in: path
+          description: Book Id
+          schema:
+            type: string
+          required: true
+        - name: image_id
+          in: path
+          description: Image Id
+          schema:
+            type: string
+          required: true
+      responses:
+        204:
+          description: Image deleted successfully.
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        500:
+          $ref: "#/components/responses/500"
 
 components:
   securitySchemes:
