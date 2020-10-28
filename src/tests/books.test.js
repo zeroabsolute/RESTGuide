@@ -1,3 +1,4 @@
+import Path from 'path';
 import Chai from 'chai';
 import ChaiHTTP from 'chai-http';
 import Crypto from 'crypto';
@@ -18,6 +19,7 @@ describe(`Test "Books" endpoints`, () => {
   let createdBook = null;
   let createdUser = null;
   let createdAuthor = null;
+  let createdImages = null;
   const genre = Faker.random.word();
 
   before(async () => {
@@ -200,6 +202,74 @@ describe(`Test "Books" endpoints`, () => {
 
     Chai.expect(response.status).to.equal(204);
     Chai.expect(updatedBook.toJSON().title).to.equal(newTitle);
+  });
+
+  /**
+   * Endpoint: "POST /books/:id/images/bulk"
+   */
+
+  it('Test "POST /books/:id/images/bulk" (Fail test case: Large file)', async () => {
+    const response = await Chai.request(server)
+      .post(`/api/v1/books/${createdBook._id}/images/bulk`)
+      .set('authorization', adminToken)
+      .attach('images', Path.resolve(__dirname, `./samples/4.jpg`));
+
+    Chai.expect(response.status).to.equal(500);
+  });
+
+  it('Test "POST /books/:id/images/bulk" (Success test case)', async () => {
+    const response = await Chai.request(server)
+      .post(`/api/v1/books/${createdBook._id}/images/bulk`)
+      .set('authorization', adminToken)
+      .attach('images', Path.resolve(__dirname, `./samples/1.jpeg`))
+      .attach('images', Path.resolve(__dirname, `./samples/2.jpg`))
+      .attach('images', Path.resolve(__dirname, `./samples/3.pdf`));
+
+    Chai.expect(response.status).to.equal(200);
+    Chai.expect(response.body).to.be.an('array').of.length(2);
+    Chai.expect(response.body[0]).to.have.all.keys(
+      'status',
+      'result',
+    );
+    Chai.expect(response.body[0].result).to.have.all.keys(
+      'name',
+      'url',
+      '_id',
+    );
+
+    createdImages = response.body;
+  });
+
+  /**
+   * Endpoint: "DELETE /books/:bookId/images/:imageId"
+   */
+
+  it('Test "DELETE /books/:id/images/bulk" (Success test case 1)', async () => {
+    const response = await Chai.request(server)
+      .delete(`/api/v1/books/${createdBook._id}/images/${createdImages[0].result._id}`)
+      .set('authorization', adminToken);
+    const updatedBook = await Book.findById(createdBook._id);
+
+    Chai.expect(response.status).to.equal(204);
+    Chai.expect(updatedBook.images).to.be.an('array').of.length(1);
+  });
+
+  it('Test "DELETE /books/:id/images/bulk" (Success test case 2)', async () => {
+    const response = await Chai.request(server)
+      .delete(`/api/v1/books/${createdBook._id}/images/${createdImages[1].result._id}`)
+      .set('authorization', adminToken);
+    const updatedBook = await Book.findById(createdBook._id);
+
+    Chai.expect(response.status).to.equal(204);
+    Chai.expect(updatedBook.images).to.be.an('array').of.length(0);
+  });
+
+  it('Test "DELETE /books/:bookId/images/:imageId" (Fail test case: Not found)', async () => {
+    const response = await Chai.request(server)
+      .delete(`/api/v1/books/${createdBook._id}/images/${createdImages[0].result._id}`)
+      .set('authorization', adminToken);
+
+    Chai.expect(response.status).to.equal(404);
   });
 
   /**
