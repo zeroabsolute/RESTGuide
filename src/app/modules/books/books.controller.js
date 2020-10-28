@@ -144,6 +144,7 @@ export const uploadImages = async (req, res, next) => {
 
     const result = [];
     const itemsToAdd = [];
+    const errors = [];
 
     for (let i = 0; i < req.files.length; i += 1) {
       try {
@@ -161,6 +162,7 @@ export const uploadImages = async (req, res, next) => {
           },
         });
       } catch (e) {
+        errors.push(e);
         result.push({
           status: 'ERROR',
           result: {
@@ -170,7 +172,7 @@ export const uploadImages = async (req, res, next) => {
       }
     }
 
-    await Book.findByIdAndUpdate(
+    const updateResult = await Book.findByIdAndUpdate(
       req.params.id,
       {
         $push: {
@@ -182,7 +184,30 @@ export const uploadImages = async (req, res, next) => {
       { new: true }
     );
 
-    res.status(200).json(result);
+    const finalResult = [];
+    
+    result.forEach((item) => {
+      if (item.status === 'SUCCESS') {
+        const dbImage = updateResult.images.find(
+          (i) => i.url === item.result.url
+        );
+        finalResult.push({ 
+          ...item, 
+          result: { 
+            ...item.result, 
+            _id: dbImage._id 
+          } 
+        });
+      } else {
+        finalResult.push(item);
+      }
+    });
+    
+    res.status(200).json(finalResult);
+
+    if (errors.length) {
+      next(new InternalError(errors, true));
+    }
   } catch (e) {
     next(new InternalError(e));
   }
