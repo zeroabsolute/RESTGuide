@@ -14,14 +14,14 @@
   ],
   "sourceMap": false,
   "check-coverage": true,
-  "branches": 60,
+  "branches": 40,
   "lines": 70,
   "functions": 70,
   "statements": 70,
   "watermarks": {
     "lines": [70, 90],
     "functions": [70, 90],
-    "branches": [60, 90],
+    "branches": [40, 90],
     "statements": [70, 90]
   }
 }
