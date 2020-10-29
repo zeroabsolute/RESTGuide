@@ -1,0 +1,30 @@
+name: Lint & Integration Tests
+
+on:
+  push:
+    branches:    
+      - main
+      - dev
+      - 'releases/**'
+    tags:        
+      - v1
+      - v1.*
+  pull_request:
+    branches:    
+      - main
+      - dev
+      - 'releases/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      MAIL_SERVICE_API_KEY: ${{secrets.MAIL_SERVICE_API_KEY}}
+      MAIL_SERVICE_SENDER: ${{secrets.MAIL_SERVICE_SENDER}}
+      MAIL_SERVICE_SENDER: ${{secrets.MAIL_SERVICE_SENDER}}
+      VAPID_PUBLIC_KEY: ${{VAPID_PUBLIC_KEY}}
+      VAPID_PRIVATE_KEY: ${{VAPID_PRIVATE_KEY}}
+    steps:
+      - uses: actions/checkout@v1
+      - name: Start docker stack
+      - run: docker-compose -f ./docker-compose.test.yaml up  --exit-code-from api api

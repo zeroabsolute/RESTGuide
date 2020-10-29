@@ -1,0 +1,13 @@
+name: Deploy
+
+on:
+  push:
+    branches:    
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to {PROVIDER}
+      - run: echo "Deployed successfully!"
