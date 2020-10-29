@@ -10,4 +10,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to {PROVIDER}
-      - run: echo "Deployed successfully!"
+        run: echo "Deployed successfully!"

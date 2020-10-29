@@ -25,6 +25,6 @@ jobs:
       VAPID_PUBLIC_KEY: ${{VAPID_PUBLIC_KEY}}
       VAPID_PRIVATE_KEY: ${{VAPID_PRIVATE_KEY}}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Start docker stack
-      - run: docker-compose -f ./docker-compose.test.yaml up  --exit-code-from api api
+        run: docker-compose -f ./docker-compose.test.yaml up  --exit-code-from api api
