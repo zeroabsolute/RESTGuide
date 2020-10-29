@@ -1,6 +1,6 @@
 FROM node:alpine
 WORKDIR /app
 COPY package*.json ./
-RUN npm install --unsafe-perm=true --allow-root
+RUN npm install
 COPY . .
 CMD ["npm", "run", "test:ci"]
