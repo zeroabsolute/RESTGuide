@@ -1,8 +1,8 @@
 #!/bin/bash
 
-MONGODB1=mongo1:60000
-MONGODB2=mongo2:60001
-MONGODB3=mongo3:60002
+MONGODB1=mongo1:27018
+MONGODB2=mongo2:27019
+MONGODB3=mongo3:27020
 
 until curl http://${MONGODB1}/serverStatus\?text\=1 2>&1 | grep uptime | head -1; do
   sleep 1

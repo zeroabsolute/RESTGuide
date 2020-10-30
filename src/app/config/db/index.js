@@ -12,7 +12,6 @@ const init = () => {
     Mongoose
       .connect(config.databaseUrl, { 
         useNewUrlParser: true, 
-        connectTimeoutMS: 500, 
         poolSize: 20,
         useCreateIndex: true,
         useUnifiedTopology: true,
