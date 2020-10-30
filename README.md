@@ -1,3 +1,5 @@
+![Lint|Test|Deploy](https://github.com/zeroabsolute/RESTGuide/workflows/Lint%7CTest%7CDeploy/badge.svg)
+
 # RESTGuide
 
 *An opinionated guide on how to build a RESTful API with Node.js and Express*
