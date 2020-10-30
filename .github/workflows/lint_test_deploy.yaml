@@ -1,4 +1,4 @@
-name: Lint -> Integration Tests -> Deploy
+name: Lint -> Test -> Deploy
 
 on:
   push:
