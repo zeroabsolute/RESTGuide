@@ -21,11 +21,11 @@ services:
     container_name: mongo1
     image: mongo
     expose:
-      - 27018
+      - 60000
     ports:
-      - "27018:27018"
+      - "60000:60000"
     restart: always
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0", "--journal", "--dbpath", "/data/db", "--enableMajorityReadConcern", "false", "--port", "27018" ]
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0", "--journal", "--dbpath", "/data/db", "--enableMajorityReadConcern", "false", "--port", "60000" ]
     volumes:
       - ./data/mongo/dev/data1/db:/data/db
       - ./data/mongo/dev/data1/configdb:/data/configdb
@@ -34,11 +34,11 @@ services:
     container_name: mongo2
     image: mongo
     expose:
-      - 27019
+      - 60001
     ports:
-      - "27019:27019"
+      - "60001:60001"
     restart: always
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0", "--journal", "--dbpath", "/data/db", "--enableMajorityReadConcern", "false", "--port", "27019" ]
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0", "--journal", "--dbpath", "/data/db", "--enableMajorityReadConcern", "false", "--port", "60001" ]
     volumes:
       - ./data/mongo/dev/data2/db:/data/db
       - ./data/mongo/dev/data2/configdb:/data/configdb
@@ -47,11 +47,11 @@ services:
     container_name: mongo3
     image: mongo
     expose:
-      - 27020
+      - 60002
     ports:
-      - "27020:27020"
+      - "60002:60002"
     restart: always
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0", "--journal", "--dbpath", "/data/db", "--enableMajorityReadConcern", "false", "--port", "27020" ]
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0", "--journal", "--dbpath", "/data/db", "--enableMajorityReadConcern", "false", "--port", "60002" ]
     volumes:
       - ./data/mongo/dev/data3/db:/data/db
       - ./data/mongo/dev/data3/configdb:/data/configdb
