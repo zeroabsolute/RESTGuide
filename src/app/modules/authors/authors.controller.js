@@ -1,8 +1,8 @@
 import Author from '../../models/author';
 import Book from '../../models/book';
 import errors from '../../constants/errors';
-import { 
-  InternalError, 
+import {
+  InternalError,
   UnprocessableEntity,
   NotFound,
 } from '../../utils/error';
@@ -13,9 +13,9 @@ import {
 
 export const createAuthor = async (req, res, next) => {
   try {
-    const existingAuthor = await Author.findOne({ 
+    const existingAuthor = await Author.findOne({
       firstName: req.body.firstName,
-      lastName: req.body.lastName, 
+      lastName: req.body.lastName,
     });
 
     if (existingAuthor) {
@@ -40,15 +40,15 @@ export const createAuthor = async (req, res, next) => {
 export const readAuthors = async (req, res, next) => {
   try {
     const query = {};
-    const projection = req.query?.fields 
-      ? req.query.fields.split(',') 
+    const projection = req.query?.fields
+      ? req.query.fields.split(',')
       : [
-          'firstName', 
-          'lastName', 
-          'genres',
-          'createdAt',
-          'updatedAt'
-        ];
+        'firstName',
+        'lastName',
+        'genres',
+        'createdAt',
+        'updatedAt'
+      ];
 
     if (req.query?.genres) {
       query.genres = req.query.genre;
@@ -105,10 +105,10 @@ export const updateAuthor = async (req, res, next) => {
         _id: { $ne: author._id },
       };
       const existingAuthor = await Author.findOne(query);
-      
+
       if (existingAuthor) {
         next(new UnprocessableEntity(errors.AUTHOR_EXISTS));
-  
+
         return;
       }
     }

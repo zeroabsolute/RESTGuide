@@ -19,7 +19,7 @@ describe(`Test 2FA`, () => {
 
   it('Check secret key generation', () => {
     const result = tfa.generateSecret();
-    
+
     expect(result).to.have.property('base32');
     expect(result).to.have.property('otpauth_url');
   });

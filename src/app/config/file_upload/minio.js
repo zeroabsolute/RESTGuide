@@ -77,7 +77,7 @@ export function getFile(bucketName, fileName) {
       if (error) {
         reject(error);
       }
-      
+
       resolve(stream);
     });
   });
@@ -107,6 +107,6 @@ export function getPublicURL(bucketName, fileName) {
   return `${config.fileUploadServiceExternalUrl}/${bucketName}/${fileName}`;
 }
 
-export function getService () { 
-  return service; 
+export function getService() {
+  return service;
 }

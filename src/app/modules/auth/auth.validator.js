@@ -20,8 +20,8 @@ export const registerUserValidator = (req, res, next) => {
 
   if (result.error) {
     return next(new BadRequest(result?.error?.details));
-  } 
-  
+  }
+
   return next();
 };
 
@@ -39,7 +39,7 @@ export const resendConfirmationEmailValidator = (req, res, next) => {
 
   if (result.error) {
     return next(new BadRequest(result?.error?.details));
-  } 
+  }
 
   return next();
 };
@@ -114,7 +114,7 @@ export const resetPasswordValidator = (req, res, next) => {
 
   if (result.error) {
     return next(new BadRequest(result?.error?.details));
-  } 
+  }
 
   return next();
 };
@@ -132,7 +132,7 @@ export const completeTwoFactorAuthValidator = (req, res, next) => {
 
   if (result.error) {
     return next(new BadRequest(result?.error?.details));
-  } 
+  }
 
   return next();
 };
@@ -150,7 +150,7 @@ export const verifyTwoFactorAuthTokenValidator = (req, res, next) => {
 
   if (result.error) {
     return next(new BadRequest(result?.error?.details));
-  } 
+  }
 
   return next();
 };

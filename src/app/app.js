@@ -35,9 +35,9 @@ app.use("/api/v1", routes);
 const swaggerDocument = require('../docs/openapi.json');
 
 app.use(
-  '/api/swagger', 
+  '/api/swagger',
   basicAuth(config.apiDocsUsername, config.apiDocsPassword, true),
-  SwaggerUI.serve, 
+  SwaggerUI.serve,
   SwaggerUI.setup(swaggerDocument, false, { docExpansion: 'none' })
 );
 app.use(errorHandler);
@@ -45,10 +45,10 @@ app.use(errorHandler);
 // Catch all unhandled errors and log them
 process.on('unhandledRejection', (reason) => {
   throw reason;
- });
-  
- process.on('uncaughtException', (error) => {
-   errorHandler(error);
- });
+});
+
+process.on('uncaughtException', (error) => {
+  errorHandler(error);
+});
 
 export default app;

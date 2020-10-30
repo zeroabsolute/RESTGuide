@@ -17,7 +17,7 @@ const schema = new Mongoose.Schema(
       required: true,
     }],
   },
-  { 
+  {
     timestamps: true,
     collection: dbTables.AUTHOR,
   },

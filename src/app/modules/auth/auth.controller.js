@@ -75,7 +75,7 @@ export const resendConfirmationEmail = async (req, res, next) => {
     }
 
     await helpers.sendConfirmationEmail(
-      result, 
+      result,
       req.body.redirectUrl
     );
 
@@ -86,7 +86,7 @@ export const resendConfirmationEmail = async (req, res, next) => {
 };
 
 /**
- * Confirm account controller
+ * Confirm account
  */
 
 export const confirmAccount = async (req, res, next) => {
@@ -114,7 +114,7 @@ export const confirmAccount = async (req, res, next) => {
 };
 
 /**
- * Log in controller
+ * Log in
  */
 
 export const logIn = async (req, res, next) => {
@@ -151,7 +151,7 @@ export const logIn = async (req, res, next) => {
       ...result.toJSON(),
       token: sessionToken
     };
-    
+
     delete objectToReturn.password;
     delete objectToReturn.twoFactorAuth.secret;
 
@@ -162,7 +162,7 @@ export const logIn = async (req, res, next) => {
 };
 
 /**
- * Request new password controller
+ * Request new password
  */
 
 export const requestNewPassword = async (req, res, next) => {
@@ -181,7 +181,7 @@ export const requestNewPassword = async (req, res, next) => {
     }
 
     await helpers.sendEmailWithResetPasswordLink(
-      result, 
+      result,
       req.body.redirectUrl
     );
 
@@ -192,7 +192,7 @@ export const requestNewPassword = async (req, res, next) => {
 };
 
 /**
- * Reset password controller
+ * Reset password
  */
 
 export const resetPassword = async (req, res, next) => {
@@ -200,7 +200,7 @@ export const resetPassword = async (req, res, next) => {
     const salt = await Bcrypt.genSalt();
     const hashedPassword = await Bcrypt.hash(req.body.password, salt);
     const result = await User.findOneAndUpdate(
-      { confirmationToken: req.body.token }, 
+      { confirmationToken: req.body.token },
       { password: hashedPassword }
     );
 
@@ -272,7 +272,7 @@ export const completeTwoFactorAuthentication = async (req, res, next) => {
     }
 
     const tokenIsValid = twoFactorAuth.validateToken(
-      userResult.twoFactorAuth.secret, 
+      userResult.twoFactorAuth.secret,
       token
     );
 
@@ -315,7 +315,7 @@ export const verifyTwoFactorAuthToken = async (req, res, next) => {
     }
 
     const tokenIsValid = twoFactorAuth.validateToken(
-      userResult.twoFactorAuth.secret, 
+      userResult.twoFactorAuth.secret,
       token
     );
 

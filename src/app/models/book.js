@@ -38,7 +38,7 @@ const schema = new Mongoose.Schema(
       }
     }]
   },
-  { 
+  {
     timestamps: true,
     collection: dbTables.BOOK,
   },

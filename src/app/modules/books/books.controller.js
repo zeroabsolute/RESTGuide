@@ -185,24 +185,24 @@ export const uploadImages = async (req, res, next) => {
     );
 
     const finalResult = [];
-    
+
     result.forEach((item) => {
       if (item.status === 'SUCCESS') {
         const dbImage = updateResult.images.find(
           (i) => i.url === item.result.url
         );
-        finalResult.push({ 
-          ...item, 
-          result: { 
-            ...item.result, 
-            _id: dbImage._id 
-          } 
+        finalResult.push({
+          ...item,
+          result: {
+            ...item.result,
+            _id: dbImage._id
+          }
         });
       } else {
         finalResult.push(item);
       }
     });
-    
+
     res.status(200).json(finalResult);
 
     if (errors.length) {

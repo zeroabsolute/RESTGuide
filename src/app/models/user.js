@@ -39,10 +39,10 @@ const schema = new Mongoose.Schema(
     },
     twoFactorAuth: {
       type: {
-        active: { 
-          type: Mongoose.Schema.Types.Boolean, 
-          required: true, 
-          default: false 
+        active: {
+          type: Mongoose.Schema.Types.Boolean,
+          required: true,
+          default: false
         },
         secret: {
           type: {
@@ -57,7 +57,7 @@ const schema = new Mongoose.Schema(
       required: true,
     },
   },
-  { 
+  {
     timestamps: true,
     collection: dbTables.USER,
   },

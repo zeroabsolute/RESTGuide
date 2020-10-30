@@ -4,48 +4,48 @@ import { BadRequest } from '../../utils/error';
 import { commaSeparatedWords } from '../../helpers/validation';
 
 export const createAuthorValidator = (req, res, next) => {
-	const schema = Joi.object().keys({
-		firstName: Joi.string().required(),
+  const schema = Joi.object().keys({
+    firstName: Joi.string().required(),
     lastName: Joi.string().required(),
     genres: Joi.array().items(Joi.string()).min(1).required(),
-	}).required();
+  }).required();
 
-	const result = schema.validate(req.body);
+  const result = schema.validate(req.body);
 
-	if (result.error) {
+  if (result.error) {
     return next(new BadRequest(result?.error?.details));
-  } 
-  
+  }
+
   return next();
 };
 
 export const updateAuthorValidator = (req, res, next) => {
-	const schema = Joi.object().keys({
-		firstName: Joi.string(),
+  const schema = Joi.object().keys({
+    firstName: Joi.string(),
     lastName: Joi.string(),
     genres: Joi.array().items(Joi.string()).min(1),
-	}).required();
+  }).required();
 
-	const result = schema.validate(req.body);
+  const result = schema.validate(req.body);
 
-	if (result.error) {
+  if (result.error) {
     return next(new BadRequest(result?.error?.details));
-  } 
-  
+  }
+
   return next();
 };
 
 export const readAuthorsValidator = (req, res, next) => {
-	const schema = Joi.object().keys({
+  const schema = Joi.object().keys({
     genre: Joi.string(),
     fields: Joi.string().regex(commaSeparatedWords),
-	});
+  });
 
-	const result = schema.validate(req.query);
+  const result = schema.validate(req.query);
 
-	if (result.error) {
+  if (result.error) {
     return next(new BadRequest(result?.error?.details));
-  } 
-  
+  }
+
   return next();
 };

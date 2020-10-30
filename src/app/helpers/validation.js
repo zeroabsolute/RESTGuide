@@ -1,6 +1,6 @@
 export const allowedImageTypes = ['image/jpg', 'image/jpeg', 'image/png'];
 export const allowedDocTypes = [
-  'application/pdf', 
+  'application/pdf',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 ];
 export const allowedFileTypes = [...allowedDocTypes, ...allowedImageTypes];

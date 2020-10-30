@@ -10,7 +10,7 @@ import { GeneralError, InternalError } from '../utils/error';
 export default (err, req, res, next) => {
   let fullPath = null;
   let error = err;
-  
+
   if (req?.originalUrl && req?.method) {
     fullPath = `${req.method} ${req.originalUrl}`;
   }
@@ -27,7 +27,7 @@ export default (err, req, res, next) => {
 
     return;
   }
-  
+
   if (!error.logOnly) {
     res?.status(error.getCode()).json(error.printForHTTPResponse());
   }

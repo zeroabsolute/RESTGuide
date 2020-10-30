@@ -10,7 +10,7 @@ WebPush.setVapidDetails(
 
 export const sendPushNotification = (title, message, subscription) => {
   return WebPush.sendNotification(
-    subscription, 
+    subscription,
     JSON.stringify({
       title,
       message,

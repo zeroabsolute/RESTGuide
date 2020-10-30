@@ -28,31 +28,31 @@ describe(`Test "Books" endpoints`, () => {
     await Book.deleteMany({});
 
     const user = new User({
-			firstName: Faker.name.firstName(),
-			lastName: Faker.name.lastName(),
-			email: Faker.internet.email().toLowerCase(),
-			password: Faker.internet.password(),
-			confirmationLevel: confirmationLevels.CONFIRMED,
+      firstName: Faker.name.firstName(),
+      lastName: Faker.name.lastName(),
+      email: Faker.internet.email().toLowerCase(),
+      password: Faker.internet.password(),
+      confirmationLevel: confirmationLevels.CONFIRMED,
       confirmationToken: Crypto.randomBytes(32).toString('hex'),
       twoFactorAuth: { active: true },
-			isAdmin: false
-		});
-		const admin = new User({
-			firstName: Faker.name.firstName(),
-			lastName: Faker.name.lastName(),
-			email: Faker.internet.email().toLowerCase(),
-			password: Faker.internet.password(),
-			confirmationLevel: confirmationLevels.CONFIRMED,
-			confirmationToken: Crypto.randomBytes(32).toString('hex'),
-      twoFactorAuth: { active: true },
-			isAdmin: true
+      isAdmin: false
     });
-    
+    const admin = new User({
+      firstName: Faker.name.firstName(),
+      lastName: Faker.name.lastName(),
+      email: Faker.internet.email().toLowerCase(),
+      password: Faker.internet.password(),
+      confirmationLevel: confirmationLevels.CONFIRMED,
+      confirmationToken: Crypto.randomBytes(32).toString('hex'),
+      twoFactorAuth: { active: true },
+      isAdmin: true
+    });
+
     await admin.save();
     createdUser = await user.save();
-		userToken = `Bearer ${createToken(user)}`;
+    userToken = `Bearer ${createToken(user)}`;
     adminToken = `Bearer ${createToken(admin)}`;
-    
+
     const author = new Author({
       firstName: Faker.name.firstName(),
       lastName: Faker.name.lastName(),

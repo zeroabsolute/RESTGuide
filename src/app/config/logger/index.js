@@ -16,7 +16,7 @@ export const expressLoggerConfig = {
       level: 'info',
       obfuscate: [
         'body.password', // all passwords
-      ],    
+      ],
       path: Path.resolve(__dirname, `../../../../logs/${config.appName}-logs-info.log`),
       period: '3d',
       count: 3,
@@ -50,7 +50,7 @@ export const initLoggerService = () => {
         path: Path.resolve(__dirname, `../../../../logs/${config.appName}-logs-fatal.log`),
       }
     ],
-  }); 
+  });
 };
 
 export const getLogger = () => logger;

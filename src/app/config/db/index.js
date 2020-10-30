@@ -10,8 +10,8 @@ Mongoose.set('useCreateIndex', true);
 const init = () => {
   return new Promise((resolve, reject) => {
     Mongoose
-      .connect(config.databaseUrl, { 
-        useNewUrlParser: true, 
+      .connect(config.databaseUrl, {
+        useNewUrlParser: true,
         poolSize: 20,
         useCreateIndex: true,
         useUnifiedTopology: true,
