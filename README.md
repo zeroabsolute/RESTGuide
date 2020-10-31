@@ -1,12 +1,9 @@
 ![Lint|Test|Deploy](https://github.com/zeroabsolute/RESTGuide/workflows/Lint%7CTest%7CDeploy/badge.svg)
 
+
 # RESTGuide
 
 *An opinionated guide on how to build a RESTful API with Node.js and Express*
-
-Gerald Haxhi<br />
-Softup Technologies<br />
-2020<br />
 
 # Introduction
 
@@ -56,6 +53,7 @@ The article is intended for everyone (beginner or not) who wants to build a read
     - [Testing and overall quality](#testing-and-overall-quality)
     - [Security and going to production](#security-and-going-to-production)
  - [A sample project structure](#a-sample-project-structure)
+ - [How to run the sample application](#how-to-run-the-sample-application)
  - [References](#references)
 
 # Definitions
@@ -887,6 +885,61 @@ When using JSON Web Tokens (for example, with _Passport.js_), by default there's
 The bigger the body payload is, the harder your single thread works in processing it. This is an opportunity for attackers to bring servers to their knees without a tremendous amount of requests (DOS/DDOS attacks). Mitigate this by limiting the body size of incoming requests on the edge (e.g. firewall, ELB) or by configuring _express body parser_ to accept only small-size payloads.
 
 # A sample project structure
+
+The following directory structure is purely opinion-based and subject to improvements and suggestions. It is based on a very simple data model, which contains a "Users" collection, an "Authors" collection, and a "Books" collection. Each one of these resources will have some basic CRUD operations implemented and for each endpoint, the following will be included: Router declaration, input validation for the request, business logic, database interaction for reading and writing data, error handling, documentation, and tests.<br /><br />
+The sample project also includes the following functionalities: Authentication configuration (JWT and basic auth), file upload support with MinIO (an open-source S3 clone), logging tool, notifications via email,  push notifications, and a sample CI/CD script using GitHub actions. Tests are executed locally on the CI runner and the stack is set up using docker-compose. There is also a docker-compose file for local development.<br /><br />
+The source code resides in `src`. These are the main files and directories:
+- `index.js`: Node.js server setup & connection to the database.<br /><br />
+- `app`: Contains the whole application logic.
+  - `config`: This directory contains everything related to configurations, from environment variables declaration to configuration files for the database, email service, logging service, etc...
+    - `authentication`: This subdirectory contains all the setup and configurations needed for authentication, including JWT and Passport setup, basic authentication setup, and two-factor authentication setup.
+    - `db`: This directory contains code related to database setup. In the example, there is a single file that sets up the connection to a MongoDB replica set using Mongoose.
+    - `file_upload`: This directory contains the setup for the file upload service. The example project uses MinIO for file uploads, which is an open-source version of Amazon S3. There is also a simple configuration for Multer, which is a middleware for handling multipart/form-data.
+    - `logger`: This directory contains the logging service configuration.
+    - `mail`: This directory includes the email service configuration. The example uses Sendgrid as a service, but the abstraction layer makes it possible to move to another provider without much effort.
+    - `push_notifications`: It contains a basic configuration that uses web-push to send notifications to web-browsers.
+    - `var`: This directory contains the whole environment setup. The same variables are declared in different files (development, staging, production, test), one for each environment. The correct configuration is exported, based on the NODE_ENV variable. Some of the values are hardcoded (mostly for dev and test environments), while all the sensitive data (e.g. API keys or credentials) is passed as environment variables. They must be declared in .env files (when developing locally) which must not be committed, or as secrets in the CI config when testing or deploying. 
+  - `constants`: This directory contains all kinds of constants that are used in two or more different modules throughout the application code. Some examples would be: 
+A file with error strings that are returned from the API, a file with database collection names, etc...
+  - `helpers`: This directory contains functions that can be reused across multiple modules.
+  - `models`: This directory represents the data layer. Each file includes model declarations and all the related logic for accessing data from the database (e.g. methods, statics, hooks, etc...). 
+  - `modules`: This is the main directory, which contains the whole API logic. Each module represents a resource, a collection, or some other logic that is not necessarily related to a resource. For each module, we would have the following files (not all files are necessary in every case, most of them are optional):
+    - `module.router.js`: Router declaration.
+    - `module.authorization.js`: Authorization middlewares for checking if the client has permission to access a resource.
+    - `module.controller.js`: Business logic middlewares.
+    - `module.validator.js`: Middlewares for validating request parameters.
+    - `module.helpers.js`: Helper functions that are used only in their corresponding modules. We would put code here to avoid having huge controller files.
+    - `module.constants.js`: Constants that are used only within the module they are declared and not outside it (e.g. some constant value that is used both in the validator and authorization middlewares). 
+    - `module.tests.js`: Unit tests for the module.
+  - `routes`: This directory would ideally contain just two files, one health route and an index file that aggregates all router declarations within the modules directory so that it can be exported and used in the app.js file. 
+  - `utils`: This directory is very similar to the "helpers" directory. The only difference is that it contains more general-purpose utilities that are not really dependent on the project but can be reused across projects. A better practice would be to declare these utilities as npm packages.
+  - `app.js`: Express app setup and initialization of some services.<br /><br />
+- `docs`: This directory contains the yaml and json files for Swagger. In this example, the documentation is written manually using [Swagger Editor](https://editor.swagger.io/). If another method is used for generating the documentation (e.g. swagger jsdocs), the files in this directory would contain only the reusable part of the documentation and not all of it.<br /><br />
+- `templates`: This directory contains different template declarations, like email templates (in this sample project ejs templates are used), or pdf or docx templates if our project needs to generate such files automatically. <br /><br />
+- `tests`: Most of the tests should be written where the corresponding components are written (e.g. within the module, like the example above). In this directory, we would put API tests, which are not necessarily linked to only one module. These tests contain little or no mocks at all, so we test the application endpoints in real scenarios. We set up the stack with the database and all the other services, we start the server, and call the endpoints one by one. In the sample application, the only thing which is mocked is the email sending function, to avoid sending unnecessary requests to Sendgrid. In some scenarios, this would be wrong because we might want to test if the integration with the email service works as expected. In this directory, the tests we write are mostly black-box tests. We check the documentation and we form the requests and assertions based on what we see there, without checking the implementation of the endpoints. 
+
+# How to run the sample application
+
+Clone the project:
+```
+$ git clone https://github.com/zeroabsolute/RESTGuide.git
+```
+Run it locally for development (do not forget to create a .env file with all the variables declared in the docker-compose file):
+```
+$ cd RESTGuide
+$ docker-compose -f ./docker-compose.dev.yaml up -d --build api
+$ docker-compose -f ./docker-compose.dev.yaml logs -f --tail 100 api
+```
+Run the test suite locally:
+```
+$ docker-compose -f ./docker-compose.test.yaml up --build --exit-code-from api api
+```
+<br />Some links you could try after running the application locally:
+
+**API health endpoint**: http://localhost:5000/api/v1/health<br />
+**API documentation**: http://localhost:5000/api/swagger/ (for the username and password, please check the hardcoded values on the *src/config/var/development.js* file)<br />
+**MinIO file buckets**: http://localhost:9000/ (the access key and the secret key can be found in the *var* directory if they are hardcoded, in the *docker-compose.dev.yaml* file if they are hardcoded there, or in the *.env* file if you moved the variables there). <br />
+**Mongo**: If you want to browse Mongo, follow the guide [here](https://github.com/zeroabsolute/MongoReplicaSetDockerCompose) to connect Robo3t to the local replica set.
 
 # References
 - [[1] Roy Thomas Fielding: Architectural Styles and the Design of Network-based Software Architectures (Dissertation)](https://www.ics.uci.edu/~fielding/pubs/dissertation/fielding_dissertation.pdf)
