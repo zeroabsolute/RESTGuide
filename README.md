@@ -125,7 +125,7 @@ All resources have a set of methods that can be operated against them to work wi
 | `POST` | To _create_ a resource, or to _execute_ a complex operation on a resource. | No |
 | `GET` | To _retrieve_ a resource. | Yes |
 | `PUT` | To _update_ a resource. | Yes |
-| `PUT` | To _partially update_ a resource. | Yes |
+| `PATCH` | To _partially update_ a resource. | Yes |
 | `DELETE` | To _delete_ a resource. | Yes |
 | `HEAD` | A more lightweight version of GET. | Yes |
 
