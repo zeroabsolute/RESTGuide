@@ -1,7 +1,7 @@
 import Joi from 'joi';
 
 import { BadRequest } from '../../utils/error';
-import { commaSeparatedWords } from '../../helpers/validation';
+import { commaSeparatedWords } from '../../constants/validation';
 
 export const createAuthorValidator = (req, res, next) => {
   const schema = Joi.object().keys({

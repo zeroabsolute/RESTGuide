@@ -1,7 +1,7 @@
 import Joi from 'joi';
 
 import { BadRequest } from '../../utils/error';
-import { passwordRegex } from '../../helpers/validation';
+import { passwordRegex } from '../../constants/validation';
 
 /**
  * Validator for user registration

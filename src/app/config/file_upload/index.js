@@ -1,5 +1,5 @@
 import Multer from 'multer';
-import { allowedImageTypes } from '../../helpers/validation';
+import { allowedImageTypes } from '../../constants/validation';
 
 import config from '../var';
 import * as minioDriver from './minio';

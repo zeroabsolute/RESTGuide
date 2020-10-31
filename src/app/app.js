@@ -10,7 +10,7 @@ import config from './config/var';
 import { jwtAuth, basicAuth } from './config/authentication';
 import { initLoggerService, expressLoggerConfig } from './config/logger';
 import fileService from './config/file_upload';
-import errorHandler from './helpers/error_middleware';
+import errorHandler from './utils/error_middleware';
 import buckets from './constants/buckets';
 
 const app = Express();

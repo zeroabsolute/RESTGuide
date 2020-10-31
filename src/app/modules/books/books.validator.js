@@ -2,7 +2,7 @@ import BaseJoi from 'joi';
 import DateJoi from '@hapi/joi-date';
 
 import { BadRequest } from '../../utils/error';
-import { commaSeparatedWords } from '../../helpers/validation';
+import { commaSeparatedWords } from '../../constants/validation';
 import datetimeFormats from '../../constants/datetime_formats';
 
 const Joi = BaseJoi.extend(DateJoi);
