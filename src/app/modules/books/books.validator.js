@@ -7,7 +7,7 @@ import datetimeFormats from '../../constants/datetime_formats';
 
 const Joi = BaseJoi.extend(DateJoi);
 
-export const createBookValidator = (req, res, next) => {
+export const createBookValidator = (req, _res, next) => {
   const schema = Joi.object().keys({
     title: Joi.string().required(),
     author: Joi.string().required(),
@@ -28,7 +28,7 @@ export const createBookValidator = (req, res, next) => {
   return next();
 };
 
-export const updateBookValidator = (req, res, next) => {
+export const updateBookValidator = (req, _res, next) => {
   const schema = Joi.object().keys({
     title: Joi.string(),
     author: Joi.string(),
@@ -48,7 +48,7 @@ export const updateBookValidator = (req, res, next) => {
   return next();
 };
 
-export const readBooksValidator = (req, res, next) => {
+export const readBooksValidator = (req, _res, next) => {
   const schema = Joi.object().keys({
     genre: Joi.string(),
     fields: Joi.string().regex(commaSeparatedWords),

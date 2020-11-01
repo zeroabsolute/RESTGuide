@@ -7,7 +7,7 @@ import { passwordRegex } from '../../constants/validation';
  * Validator for user registration
  */
 
-export const registerUserValidator = (req, res, next) => {
+export const registerUserValidator = (req, _res, next) => {
   const schema = Joi.object().keys({
     email: Joi.string().email().required(),
     password: Joi.string().regex(passwordRegex).required(),
@@ -29,7 +29,7 @@ export const registerUserValidator = (req, res, next) => {
  * Validator for resend confirmation email request
  */
 
-export const resendConfirmationEmailValidator = (req, res, next) => {
+export const resendConfirmationEmailValidator = (req, _res, next) => {
   const schema = Joi.object().keys({
     email: Joi.string().email().required(),
     redirectUrl: Joi.string().uri().required(),
@@ -48,7 +48,7 @@ export const resendConfirmationEmailValidator = (req, res, next) => {
  * Validator for account confirmation request
  */
 
-export const confirmAccountValidator = (req, res, next) => {
+export const confirmAccountValidator = (req, _res, next) => {
   const schema = Joi.object().keys({
     token: Joi.string().required(),
   });
@@ -66,7 +66,7 @@ export const confirmAccountValidator = (req, res, next) => {
  * Validator for user log in request
  */
 
-export const logInValidator = (req, res, next) => {
+export const logInValidator = (req, _res, next) => {
   const schema = Joi.object().keys({
     email: Joi.string().email().required(),
     password: Joi.string().required(),
@@ -85,7 +85,7 @@ export const logInValidator = (req, res, next) => {
  * Validator for user password reset request.
  */
 
-export const resetPasswordRequestValidator = (req, res, next) => {
+export const resetPasswordRequestValidator = (req, _res, next) => {
   const schema = Joi.object().keys({
     email: Joi.string().email().required(),
     redirectUrl: Joi.string().uri().required(),
@@ -104,7 +104,7 @@ export const resetPasswordRequestValidator = (req, res, next) => {
  * Validator for user password reset.
  */
 
-export const resetPasswordValidator = (req, res, next) => {
+export const resetPasswordValidator = (req, _res, next) => {
   const schema = Joi.object().keys({
     token: Joi.string().required(),
     password: Joi.string().regex(passwordRegex).required(),
@@ -123,7 +123,7 @@ export const resetPasswordValidator = (req, res, next) => {
  * Validator for 2FA completion
  */
 
-export const completeTwoFactorAuthValidator = (req, res, next) => {
+export const completeTwoFactorAuthValidator = (req, _res, next) => {
   const schema = Joi.object().keys({
     token: Joi.string().required(),
   });
@@ -141,7 +141,7 @@ export const completeTwoFactorAuthValidator = (req, res, next) => {
  * Validator for 2FA token verification
  */
 
-export const verifyTwoFactorAuthTokenValidator = (req, res, next) => {
+export const verifyTwoFactorAuthTokenValidator = (req, _res, next) => {
   const schema = Joi.object().keys({
     token: Joi.string().required(),
   });
