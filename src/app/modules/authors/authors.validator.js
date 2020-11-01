@@ -3,7 +3,7 @@ import Joi from 'joi';
 import { BadRequest } from '../../utils/error';
 import { commaSeparatedWords } from '../../constants/validation';
 
-export const createAuthorValidator = (req, res, next) => {
+export const createAuthorValidator = (req, _res, next) => {
   const schema = Joi.object().keys({
     firstName: Joi.string().required(),
     lastName: Joi.string().required(),
@@ -19,7 +19,7 @@ export const createAuthorValidator = (req, res, next) => {
   return next();
 };
 
-export const updateAuthorValidator = (req, res, next) => {
+export const updateAuthorValidator = (req, _res, next) => {
   const schema = Joi.object().keys({
     firstName: Joi.string(),
     lastName: Joi.string(),
@@ -35,7 +35,7 @@ export const updateAuthorValidator = (req, res, next) => {
   return next();
 };
 
-export const readAuthorsValidator = (req, res, next) => {
+export const readAuthorsValidator = (req, _res, next) => {
   const schema = Joi.object().keys({
     genre: Joi.string(),
     fields: Joi.string().regex(commaSeparatedWords),

@@ -23,7 +23,7 @@ export const multerConfigForMemoryStorage = {
     fieldSize: 500000,
     fileSize: 500000,
   },
-  fileFilter: (req, file, cb) => {
+  fileFilter: (_req, file, cb) => {
     if (allowedImageTypes.includes(file.mimetype)) {
       return cb(null, true);
     }
