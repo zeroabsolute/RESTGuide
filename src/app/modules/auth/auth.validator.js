@@ -3,11 +3,7 @@ import Joi from 'joi';
 import { BadRequest } from '../../utils/error';
 import { passwordRegex } from '../../constants/validation';
 
-/**
- * Validator for user registration
- */
-
-export const registerUserValidator = (req, _res, next) => {
+export const validateUserSignUpRequest = (input) => {
   const schema = Joi.object().keys({
     email: Joi.string().email().required(),
     password: Joi.string().regex(passwordRegex).required(),
@@ -16,141 +12,97 @@ export const registerUserValidator = (req, _res, next) => {
     redirectUrl: Joi.string().uri().required(),
   }).required();
 
-  const result = schema.validate(req.body);
+  const result = schema.validate(input);
 
   if (result.error) {
-    return next(new BadRequest(result?.error?.details));
+    throw new BadRequest(result?.error?.details);
   }
-
-  return next();
 };
 
-/**
- * Validator for resend confirmation email request
- */
-
-export const resendConfirmationEmailValidator = (req, _res, next) => {
+export const validateResendConfirmationEmailRequest = (input) => {
   const schema = Joi.object().keys({
     email: Joi.string().email().required(),
     redirectUrl: Joi.string().uri().required(),
   });
 
-  const result = schema.validate(req.body);
+  const result = schema.validate(input);
 
   if (result.error) {
-    return next(new BadRequest(result?.error?.details));
+    throw new BadRequest(result?.error?.details);
   }
-
-  return next();
 };
 
-/**
- * Validator for account confirmation request
- */
-
-export const confirmAccountValidator = (req, _res, next) => {
+export const validateConfirmAccountRequest = (input) => {
   const schema = Joi.object().keys({
     token: Joi.string().required(),
   });
 
-  const result = schema.validate(req.query);
+  const result = schema.validate(input);
 
   if (result.error) {
-    return next(new BadRequest(result?.error?.details));
+    throw new BadRequest(result?.error?.details);
   }
-
-  return next();
 };
 
-/**
- * Validator for user log in request
- */
-
-export const logInValidator = (req, _res, next) => {
+export const validateLogInRequest = (input) => {
   const schema = Joi.object().keys({
     email: Joi.string().email().required(),
     password: Joi.string().required(),
   });
 
-  const result = schema.validate(req.body);
+  const result = schema.validate(input);
 
   if (result.error) {
-    return next(new BadRequest(result?.error?.details));
+    throw new BadRequest(result?.error?.details);
   }
-
-  return next();
 };
 
-/**
- * Validator for user password reset request.
- */
-
-export const resetPasswordRequestValidator = (req, _res, next) => {
+export const validateResetPasswordRequest = (input) => {
   const schema = Joi.object().keys({
     email: Joi.string().email().required(),
     redirectUrl: Joi.string().uri().required(),
   }).required();
 
-  const result = schema.validate(req.body);
+  const result = schema.validate(input);
 
   if (result.error) {
-    return next(new BadRequest(result?.error?.details));
+    throw new BadRequest(result?.error?.details);
   }
-
-  return next();
 };
 
-/**
- * Validator for user password reset.
- */
-
-export const resetPasswordValidator = (req, _res, next) => {
+export const validatePasswordUpdateRequest = (input) => {
   const schema = Joi.object().keys({
     token: Joi.string().required(),
     password: Joi.string().regex(passwordRegex).required(),
   }).required();
 
-  const result = schema.validate(req.body);
+  const result = schema.validate(input);
 
   if (result.error) {
-    return next(new BadRequest(result?.error?.details));
+    throw new BadRequest(result?.error?.details);
   }
-
-  return next();
 };
 
-/**
- * Validator for 2FA completion
- */
-
-export const completeTwoFactorAuthValidator = (req, _res, next) => {
+export const validateCompleteTwoFactorAuthRequest = (input) => {
   const schema = Joi.object().keys({
     token: Joi.string().required(),
   });
 
-  const result = schema.validate(req.body);
+  const result = schema.validate(input);
 
   if (result.error) {
-    return next(new BadRequest(result?.error?.details));
+    throw new BadRequest(result?.error?.details);
   }
-
-  return next();
 };
 
-/**
- * Validator for 2FA token verification
- */
-
-export const verifyTwoFactorAuthTokenValidator = (req, _res, next) => {
+export const validateVerifyTwoFactorAuthTokenRequest = (input) => {
   const schema = Joi.object().keys({
     token: Joi.string().required(),
   });
 
-  const result = schema.validate(req.query);
+  const result = schema.validate(input);
 
   if (result.error) {
-    return next(new BadRequest(result?.error?.details));
+    throw new BadRequest(result?.error?.details);
   }
-
-  return next();
 };
