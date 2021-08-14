@@ -427,6 +427,13 @@ router.route(`${BASE_ROUTE}/two-factor-auth/initialization`).put(
  *               schema:
  *                 $ref: "#/components/schemas/Error"
  *               examples:
+ *                 noTwoFactorAuth:
+ *                   value:
+ *                     code: ckgjkxvgl000431pp4xlpew2g
+ *                     name: Unprocessable Entity
+ *                     message: Your request was understood but could not be completed due to semantic errors
+ *                     details: Two-factor authentication is not enabled for your account
+ *                   summary: No two-factor-auth enabled
  *                 invalidToken:
  *                   value:
  *                     code: ckgjkxvgl000431pp4xlpew2g

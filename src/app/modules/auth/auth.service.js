@@ -213,6 +213,7 @@ export const completeTwoFactorAuthentication = async ({ userId, requestBody }) =
   const user = await dal.findUser({ query });
 
   checkIfUserAccountExists(user);
+  checkIfTwoFactorAuthIsEnabled(user);
   checkIfTokenIsValid(user, token);
 
   const update = { 'twoFactorAuth.active': true };
@@ -222,8 +223,14 @@ export const completeTwoFactorAuthentication = async ({ userId, requestBody }) =
   });
 };
 
+function checkIfTwoFactorAuthIsEnabled(user) {
+  if (!user.twoFactorAuth.secret) {
+    throw new UnprocessableEntity(errors.NO_2FA);
+  }
+}
+
 function checkIfTokenIsValid(user, token) {
-  const tokenIsNotValid = twoFactorAuth.validateToken(
+  const tokenIsNotValid = !twoFactorAuth.validateToken(
     user.twoFactorAuth.secret,
     token,
   );
@@ -234,7 +241,7 @@ function checkIfTokenIsValid(user, token) {
 }
 
 
-export const verifyTwoFactorAuthToken = async (userId, requestParams) => {
+export const verifyTwoFactorAuthToken = async ({ userId, requestParams }) => {
   validator.validateVerifyTwoFactorAuthTokenRequest({ input: requestParams });
 
   const token = requestParams.token;
