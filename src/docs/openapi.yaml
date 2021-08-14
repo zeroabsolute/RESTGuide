@@ -4,7 +4,7 @@ info:
   description: "An opinionated guide on how to build a RESTful API"
   version: "1.0.0"
   title: "RESTGuide"
-    
+
 servers:
   - url: http://localhost:{port}/{base_path}
     description: Local development server
@@ -17,7 +17,7 @@ servers:
 paths:
   /health:
     get:
-      tags: 
+      tags:
         - Health
       summary: Get server status
       responses:
@@ -27,386 +27,20 @@ paths:
             application/json:
               schema:
                 properties:
-                  appName: 
+                  appName:
                     type: string
                     example: "RESTGuide"
-                  version: 
+                  version:
                     type: string
                     example: "1.0.0"
-                  status: 
+                  status:
                     type: string
                     example: "OK"
-  /auth/registration:
-    post:
-      tags: 
-        - Authentication
-      summary: Sign up
-      description: Creates a user account and sends a confirmation email.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              required:
-                - email
-                - password
-                - firstName
-                - lastName
-                - redirectUrl
-              properties:
-                email:
-                  type: string
-                  format: email
-                password:
-                  type: string
-                  format: password
-                firstName:
-                  type: string
-                lastName:
-                  type: string
-                redirectUrl:
-                  type: string
-                  format: uri
-      responses:
-        204:
-          description: User created successfully.
-        400:
-          $ref: "#/components/responses/400"
-        422:
-          description: Unprocessable Entity
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-              examples:
-                emailExists:
-                  value:
-                    code: ckgjkxvgl000431pp4xlpew2g
-                    name: Unprocessable Entity
-                    message: Your request was understood but could not be completed due to semantic errors
-                    details: An account with the given email already exists
-                  summary: Email exists
-        500:
-          $ref: "#/components/responses/500"
-  /auth/resend-confirmation-email:
-    post:
-      tags: 
-        - Authentication
-      summary: Resend confirmation email
-      description: Resends a confirmation email to the given email address
-      requestBody:
-        content:
-          application/json:
-            schema:
-              required:
-                - email
-                - redirectUrl
-              properties:
-                email:
-                  type: string
-                  format: email
-                redirectUrl:
-                  type: string
-                  format: uri
-      responses:
-        204:
-          description: Email sent successfully.
-        400:
-          $ref: "#/components/responses/400"
-        404:
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-              examples:
-                userNotFoundOrConfirmed:
-                  value:
-                    code: ckgjkxvgl000431pp4xlpew2g
-                    name: Not Found
-                    message: The requested item was not found
-                    details: The requested user does not exist, or the account is already confirmed
-                  summary: User not found or account confirmed
-        500:
-          $ref: "#/components/responses/500"
-  /auth/confirmation:
-    put:
-      tags: 
-        - Authentication
-      summary: Confirm account
-      description: Sets user confirmation level to "confirmed"
-      parameters: 
-        - name: token
-          in: query
-          description: User confirmation token
-          required: true
-          schema:
-            type: string
-      responses:
-        204:
-          description: Account confirmed successfully.
-        400:
-          $ref: "#/components/responses/400"
-        404:
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-              examples:
-                userNotFoundOrConfirmed:
-                  value:
-                    code: ckgjkxvgl000431pp4xlpew2g
-                    name: Not Found
-                    message: The requested item was not found
-                    details: The requested user does not exist, or the account is already confirmed
-                  summary: User not found or account confirmed
-        500:
-          $ref: "#/components/responses/500"
-  /auth/login:
-    post:
-      tags: 
-        - Authentication
-      summary: Log in
-      description: Authenticate with email and password
-      requestBody:
-        content:
-          application/json:
-            schema:
-              required:
-                - email
-                - password
-              properties:
-                email:
-                  type: string
-                  format: email
-                password:
-                  type: string
-                  format: password
-      responses:
-        200:
-          description: User successfully authenticated.
-          content:
-            application/json:
-              schema:
-                allOf:
-                 - $ref: "#/components/schemas/User"
-                properties:
-                  token:
-                    type: string
-        400:
-          $ref: "#/components/responses/400"
-        401:
-          description: Not Authenticated
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-              examples:
-                userNotFound:
-                  value:
-                    code: ckgjkxvgl000431pp4xlpew2g
-                    name: Not Authenticated
-                    message: Missing authentication or invalid credentials
-                    details: The requested user does not exist in our database
-                  summary: User not found
-                invalidPassword:
-                  value:
-                    code: ckgjkxvgl000431pp4xlpew2g
-                    name: Not Authenticated
-                    message: Missing authentication or invalid credentials
-                    details: The provided password is incorrect
-                  summary: Invalid password
-                notConfirmed:
-                  value:
-                    code: ckgjkxvgl000431pp4xlpew2g
-                    name: Not Authenticated
-                    message: Missing authentication or invalid credentials
-                    details: Your account is not confirmed
-                  summary: Account not confirmed
-        500:
-          $ref: "#/components/responses/500"
-  /auth/request-new-password:
-    post:
-      tags: 
-        - Authentication
-      summary: Request new password
-      description: Sends an email with the reset password instructions
-      requestBody:
-        content:
-          application/json:
-            schema:
-              required:
-                - email
-                - redirectUrl
-              properties:
-                email:
-                  type: string
-                  format: email
-                redirectUrl:
-                  type: string
-                  format: uri
-      responses:
-        204:
-          description: Email sent successfully.
-        400:
-          $ref: "#/components/responses/400"
-        404:
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-              examples:
-                userNotFound:
-                  $ref: "#/components/examples/UserNotFound"
-        500:
-          $ref: "#/components/responses/500"
-  /auth/password:
-    put:
-      tags: 
-        - Authentication
-      summary: Reset password
-      description: Resets the user password
-      requestBody: 
-        content:
-          application/json:
-            schema:
-              required:
-                - token
-                - password
-              properties:
-                token: 
-                  type: string
-                password: 
-                  type: string
-      responses:
-        204:
-          description: Password updated successfully.
-        400:
-          $ref: "#/components/responses/400"
-        404:
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-              examples:
-                userNotFound:
-                  $ref: "#/components/examples/UserNotFound"
-        500:
-          $ref: "#/components/responses/500"
-  /auth/two-factor-auth/initialization:
-    put:
-      security:
-        - bearerAuth: []
-      tags: 
-        - Authentication
-      summary: Initialize the two-factor authentication mechanism
-      description: Generates a QR code and returns it to the client.
-      responses:
-        200:
-          description: QR Code generated successfully.
-          content:
-            application/json:
-              schema:
-                description: Base64 representation of the QR Code
-                type: string
-                format: base64
-        401:
-          $ref: "#/components/responses/401"
-        404:
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-              examples:
-                userNotFound:
-                  $ref: "#/components/examples/UserNotFound"
-        500:
-          $ref: "#/components/responses/500"
-  /auth/two-factor-auth/activation:
-    put:
-      security:
-        - bearerAuth: []
-      tags: 
-        - Authentication
-      summary: Activate the two-factor authentication mechanism
-      description: Receives a token from the user and validates it. If the token is valid, the two-factor authentication becomes active.
-      requestBody: 
-        content:
-          application/json:
-            schema:
-              required:
-                - token
-              properties:
-                token:
-                  description: Token generated from a third party app (e.g. Google Authenticator)
-                  type: string
-      responses:
-        204:
-          description: Two-step-authentication activated successfully
-        400:
-          $ref: "#/components/responses/400"
-        401:
-          $ref: "#/components/responses/401"
-        404:
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-              examples:
-                userNotFound:
-                  $ref: "#/components/examples/UserNotFound"
-        422:
-          description: Unprocessable Entity
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-              examples:
-                invalidToken:
-                  value:
-                    code: ckgjkxvgl000431pp4xlpew2g
-                    name: Unprocessable Entity
-                    message: Your request was understood but could not be completed due to semantic errors
-                    details: The provided token is not valid
-                  summary: Invalid token
-        500:
-          $ref: "#/components/responses/500"
-  /auth/two-factor-auth/verification:
-    head:
-      security:
-        - bearerAuth: []
-      tags: 
-        - Authentication
-      summary: Verify a given token
-      description: Receives a token from the user and validates it.
-      parameters: 
-        - name: token
-          in: query
-          description: Token generated from a third party app (e.g. Google Authenticator)
-          schema:
-            type: string
-      responses:
-        200:
-          description: Token is valid
-        400:
-          description: Bad Request
-        401:
-          description: Not Authenticated
-        404:
-          description: Not Found
-        422:
-          description: Unprocessable Entity
-        500:
-          description: Internal Server Error
   /authors:
     post:
       security:
         - bearerAuth: []
-      tags: 
+      tags:
         - Authors
       summary: Create author (Admin only)
       description: Adds a new author.
@@ -460,11 +94,11 @@ paths:
     get:
       security:
         - bearerAuth: []
-      tags: 
+      tags:
         - Authors
       summary: Read authors
       description: Reads authors. Supports search by genre and projected responses.
-      parameters: 
+      parameters:
         - name: genre
           in: query
           description: Genre
@@ -496,11 +130,11 @@ paths:
     get:
       security:
         - bearerAuth: []
-      tags: 
+      tags:
         - Authors
       summary: Read one author
       description: Reads one author by Id.
-      parameters: 
+      parameters:
         - name: id
           in: path
           description: Author Id
@@ -523,11 +157,11 @@ paths:
     patch:
       security:
         - bearerAuth: []
-      tags: 
+      tags:
         - Authors
       summary: Update author (Admin only)
       description: Updates an existing author.
-      parameters: 
+      parameters:
         - name: id
           in: path
           description: Author Id
@@ -578,11 +212,11 @@ paths:
     delete:
       security:
         - bearerAuth: []
-      tags: 
+      tags:
         - Authors
       summary: Delete author (Admin only)
       description: Deletes an existing author.
-      parameters: 
+      parameters:
         - name: id
           in: path
           description: Author Id
@@ -604,7 +238,7 @@ paths:
     post:
       security:
         - bearerAuth: []
-      tags: 
+      tags:
         - Books
       summary: Create book (Admin only)
       description: Adds a new book.
@@ -651,11 +285,11 @@ paths:
     get:
       security:
         - bearerAuth: []
-      tags: 
+      tags:
         - Books
       summary: Read books
       description: Reads books. Supports search by genre and projected responses.
-      parameters: 
+      parameters:
         - name: genre
           in: query
           description: Genre
@@ -687,11 +321,11 @@ paths:
     get:
       security:
         - bearerAuth: []
-      tags: 
+      tags:
         - Books
       summary: Read one book
       description: Reads one book by Id.
-      parameters: 
+      parameters:
         - name: id
           in: path
           description: Book Id
@@ -719,11 +353,11 @@ paths:
     patch:
       security:
         - bearerAuth: []
-      tags: 
+      tags:
         - Books
       summary: Update book (Admin only)
       description: Updates an existing book.
-      parameters: 
+      parameters:
         - name: id
           in: path
           description: Book Id
@@ -765,11 +399,11 @@ paths:
     delete:
       security:
         - bearerAuth: []
-      tags: 
+      tags:
         - Books
       summary: Delete book (Admin only)
       description: Deletes an existing book.
-      parameters: 
+      parameters:
         - name: id
           in: path
           description: Book Id
@@ -791,11 +425,11 @@ paths:
     post:
       security:
         - bearerAuth: []
-      tags: 
+      tags:
         - Books
       summary: Add book images (Admin only)
       description: Uplaod images for one book.
-      parameters: 
+      parameters:
         - name: id
           in: path
           description: Book Id
@@ -824,7 +458,7 @@ paths:
                   properties:
                     status:
                       type: string
-                      enum: ['SUCCESS', 'ERROR']
+                      enum: ["SUCCESS", "ERROR"]
                     result:
                       type: object
                       properties:
@@ -849,11 +483,11 @@ paths:
     delete:
       security:
         - bearerAuth: []
-      tags: 
+      tags:
         - Books
       summary: Delete book image (Admin only)
       description: Delete an image from a book.
-      parameters: 
+      parameters:
         - name: book_id
           in: path
           description: Book Id
@@ -890,13 +524,13 @@ components:
         code:
           type: string
           description: Debug Id
-        name: 
+        name:
           type: string
           description: A human-readable error name
-        message: 
+        message:
           type: string
           description: A human-readable error message
-        details: 
+        details:
           oneOf:
             - type: string
               description: A more specific human-readable error message
@@ -910,16 +544,16 @@ components:
           type: string
         firstName:
           type: string
-        lastName: 
+        lastName:
           type: string
-        genres: 
+        genres:
           type: array
           items:
             type: string
-        createdAt: 
+        createdAt:
           type: string
           format: date-time
-        updatedAt: 
+        updatedAt:
           type: string
           format: date-time
     Book:
@@ -928,9 +562,9 @@ components:
           type: string
         title:
           type: string
-        author: 
+        author:
           type: string
-        pages: 
+        pages:
           type: integer
         genre:
           type: string
@@ -956,45 +590,10 @@ components:
               url:
                 type: string
                 format: uri
-        createdAt: 
+        createdAt:
           type: string
           format: date-time
-        updatedAt: 
-          type: string
-          format: date-time
-    User:
-      properties:
-        _id:
-          type: string
-        email:
-          type: string
-          format: email
-        password: 
-          type: string
-          format: password
-        firstName:
-          type: string
-        lastName:
-          type: string
-        phoneNumber: 
-          type: string
-        confirmationLevel: 
-          type: integer
-          enum: [0, 1, 2]
-          description: 0 = pending, 1 = confirmed, 2 = banned
-        confirmationToken: 
-          type: string
-        isAdmin: 
-          type: boolean
-        twoFactorAuth:
-          type: object
-          properties:
-            active:
-              type: boolean
-        createdAt: 
-          type: string
-          format: date-time
-        updatedAt: 
+        updatedAt:
           type: string
           format: date-time
   responses:
@@ -1008,10 +607,13 @@ components:
             code: ckgjkxvgl000431pp4xlpew2g
             name: Bad Request
             message: Your request contains invalid or missing data
-            details: [{
-              message: "\"{fieldName}\" must be a valid {fieldType}",
-              path: ["{pathToField}"],
-            }]
+            details:
+              [
+                {
+                  message: '"{fieldName}" must be a valid {fieldType}',
+                  path: ["{pathToField}"],
+                },
+              ]
     401:
       description: Not Authenticated
       content:
@@ -1071,8 +673,8 @@ components:
       in: query
       description: Page size (for pagination)
       schema:
-        type: string 
-        
+        type: string
+
   examples:
     UserNotFound:
       value:

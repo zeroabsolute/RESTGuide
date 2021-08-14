@@ -39,7 +39,7 @@ const docsFilePath = Path.resolve(__dirname, '../docs/openapi.yaml');
 const jsonDocsFile = YAML.load(docsFilePath);
 const docs = SwaggerJsdoc({
   swaggerDefinition: jsonDocsFile,
-  apis: ['./modules/**/*.js'],
+  apis: ['./src/app/**/*.js'],
 });
 
 app.use(

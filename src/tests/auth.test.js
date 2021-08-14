@@ -6,7 +6,7 @@ import Crypto from 'crypto';
 import Faker from 'faker';
 
 import server from '../index';
-import User from '../app/models/user';
+import User from '../app/modules/auth/user.model';
 import { createToken } from '../app/config/authentication/jwt';
 import { generateToken } from '../app/config/authentication/two_factor_auth';
 import errors from '../app/constants/errors';

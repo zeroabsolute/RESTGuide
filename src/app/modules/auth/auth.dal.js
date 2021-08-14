@@ -1,7 +1,7 @@
 import Bcrypt from 'bcryptjs';
 import Crypto from 'crypto';
 
-import User from '../../models/user';
+import User from '../../modules/auth/user.model';
 import errors from '../../constants/errors';
 import confirmationLevels from '../../constants/confirmation_levels';
 import { createToken } from '../../config/authentication/jwt';

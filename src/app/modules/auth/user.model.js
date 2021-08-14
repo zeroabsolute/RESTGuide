@@ -1,6 +1,46 @@
 import Mongoose from 'mongoose';
 
-import dbTables from '../constants/db_tables';
+import dbTables from '../../constants/db_tables';
+
+/**
+ * @openapi
+ * 
+ * components:
+ *   schemas:
+ *     User:
+ *       properties:
+ *         _id:
+ *           type: string
+ *         email:
+ *           type: string
+ *           format: email
+ *         password:
+ *           type: string
+ *           format: password
+ *         firstName:
+ *           type: string
+ *         lastName:
+ *           type: string
+ *         confirmationLevel:
+ *           type: integer
+ *           enum: [0, 1, 2]
+ *           description: 0 = pending, 1 = confirmed, 2 = banned
+ *         confirmationToken:
+ *           type: string
+ *         isAdmin:
+ *           type: boolean
+ *         twoFactorAuth:
+ *           type: object
+ *           properties:
+ *             active:
+ *               type: boolean
+ *         createdAt:
+ *           type: string
+ *           format: datetime
+ *         updatedAt:
+ *           type: string
+ *           format: datetime
+ */
 
 const schema = new Mongoose.Schema(
   {

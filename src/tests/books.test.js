@@ -5,7 +5,7 @@ import Crypto from 'crypto';
 import Faker from 'faker';
 
 import server from '../index';
-import User from '../app/models/user';
+import User from '../app/modules/auth/user.model';
 import Author from '../app/models/author';
 import Book from '../app/models/book';
 import { createToken } from '../app/config/authentication/jwt';
