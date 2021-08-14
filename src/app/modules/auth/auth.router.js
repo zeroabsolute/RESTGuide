@@ -2,7 +2,6 @@ import Passport from 'passport';
 import { Router } from 'express';
 
 import * as controller from './auth.controller';
-import * as validator from './auth.validator';
 
 const router = new Router();
 const BASE_ROUTE = '/auth';
@@ -67,7 +66,6 @@ const BASE_ROUTE = '/auth';
  */
 
 router.route(`${BASE_ROUTE}/register`).post(
-  validator.registerUserValidator,
   controller.registerUser,
 );
 
@@ -121,7 +119,6 @@ router.route(`${BASE_ROUTE}/register`).post(
  */
 
 router.route(`${BASE_ROUTE}/resend-confirmation-email`).post(
-  validator.resendConfirmationEmailValidator,
   controller.resendConfirmationEmail,
 );
 
@@ -168,7 +165,6 @@ router.route(`${BASE_ROUTE}/resend-confirmation-email`).post(
  */
 
 router.route(`${BASE_ROUTE}/confirmation`).put(
-  validator.confirmAccountValidator,
   controller.confirmAccount,
 );
 
@@ -244,7 +240,6 @@ router.route(`${BASE_ROUTE}/confirmation`).put(
  */
 
 router.route(`${BASE_ROUTE}/login`).post(
-  validator.logInValidator,
   controller.logIn,
 );
 
@@ -293,7 +288,6 @@ router.route(`${BASE_ROUTE}/login`).post(
  */
 
 router.route(`${BASE_ROUTE}/request-new-password`).post(
-  validator.resetPasswordRequestValidator,
   controller.requestNewPassword
 );
 
@@ -340,7 +334,6 @@ router.route(`${BASE_ROUTE}/request-new-password`).post(
  */
 
 router.route(`${BASE_ROUTE}/password`).put(
-  validator.resetPasswordValidator,
   controller.resetPassword
 );
 
@@ -447,7 +440,6 @@ router.route(`${BASE_ROUTE}/two-factor-auth/initialization`).put(
 
 router.route(`${BASE_ROUTE}/two-factor-auth/activation`).put(
   Passport.authenticate('jwt', { session: false }),
-  validator.completeTwoFactorAuthValidator,
   controller.completeTwoFactorAuthentication,
 );
 
@@ -489,7 +481,6 @@ router.route(`${BASE_ROUTE}/two-factor-auth/activation`).put(
 
 router.route(`${BASE_ROUTE}/two-factor-auth/verification`).head(
   Passport.authenticate('jwt', { session: false }),
-  validator.verifyTwoFactorAuthTokenValidator,
   controller.verifyTwoFactorAuthToken,
 );
 
