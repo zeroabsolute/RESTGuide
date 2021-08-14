@@ -25,6 +25,6 @@ export const updateUser = async ({ query, content }) => {
   return result;
 };
 
-export const deleteUsers = async () => {
-  await User.deleteMany({});
+export const deleteUsers = async ({ query }) => {
+  await User.deleteMany(query);
 };

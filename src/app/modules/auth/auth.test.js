@@ -1,16 +1,16 @@
 import Chai from 'chai';
 import ChaiHTTP from 'chai-http';
-import Sinon from 'sinon';
+import { stub } from 'sinon';
 import Bcrypt from 'bcryptjs';
 import Crypto from 'crypto';
 import Faker from 'faker';
 
-import server from '../index';
-import User from '../app/modules/auth/user.model';
-import { createToken } from '../app/config/authentication/jwt';
-import { generateToken } from '../app/config/authentication/two_factor_auth';
-import errors from '../app/constants/errors';
-import mailService from '../app/config/mail';
+import server from '../../../index';
+import * as dal from './auth.dal';
+import { createToken } from '../../config/authentication/jwt';
+import { generateToken } from '../../config/authentication/two_factor_auth';
+import errors from '../../constants/errors';
+import mailService from '../../config/mail';
 
 Chai.use(ChaiHTTP);
 
@@ -23,8 +23,8 @@ describe(`Test "Auth" endpoints`, () => {
   let sendEmailStub = null;
 
   before(async () => {
-    await User.deleteMany({});
-    sendEmailStub = Sinon.stub(mailService, 'sendEmail').resolves();
+    await dal.deleteUsers({ query: {} });
+    sendEmailStub = stub(mailService, 'sendEmail').resolves();
   });
 
   /**
@@ -113,8 +113,7 @@ describe(`Test "Auth" endpoints`, () => {
    */
 
   it('Test "PUT /auth/confirmation" (Success test case)', async () => {
-    const user = await User.findOne({ email: email.toLowerCase() });
-
+    const user = await dal.findUser({ query: { email: email.toLowerCase() } });
     confirmationToken = user.confirmationToken;
 
     const response = await Chai.request(server)
@@ -239,7 +238,7 @@ describe(`Test "Auth" endpoints`, () => {
   });
 
   it('Test "PUT /auth/password" (Success test case)', async () => {
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const user = await dal.findUser({ query: { email: email.toLowerCase() } });
     const body = {
       token: user.confirmationToken,
       password: 'Ran@0m?pass2',
@@ -250,7 +249,7 @@ describe(`Test "Auth" endpoints`, () => {
 
     Chai.expect(response.status).to.equal(204);
 
-    const updatedUser = await User.findOne({ email: email.toLowerCase() });
+    const updatedUser = await dal.findUser({ query: { email: email.toLowerCase() } });
     const passwordsMatch = Bcrypt.compareSync(body.password, updatedUser.password);
 
     Chai.expect(passwordsMatch).to.equal(true);
@@ -268,7 +267,7 @@ describe(`Test "Auth" endpoints`, () => {
     Chai.expect(response.status).to.equal(200);
     Chai.expect(response.text).to.be.a('string');
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const user = await dal.findUser({ query: { email: email.toLowerCase() } });
 
     Chai.expect(user.twoFactorAuth).to.be.an('object');
 
@@ -287,7 +286,7 @@ describe(`Test "Auth" endpoints`, () => {
 
     Chai.expect(response.status).to.equal(204);
 
-    const updatedUser = await User.findOne({ email: email.toLowerCase() });
+    const updatedUser = await dal.findUser({ query: { email: email.toLowerCase() } });
 
     Chai.expect(updatedUser.twoFactorAuth.active).to.equal(true);
     Chai.expect(updatedUser.twoFactorAuth.secret).to.be.an('object');
@@ -306,7 +305,7 @@ describe(`Test "Auth" endpoints`, () => {
   });
 
   after(async () => {
-    await User.deleteMany({});
+    await dal.deleteUsers({ query: {} });
     sendEmailStub.restore();
   });
 });
