@@ -106,7 +106,7 @@ export const confirmAccount = async ({ requestParams }) => {
 export const logIn = async ({ requestBody }) => {
   validator.validateLogInRequest({ input: requestBody });
 
-  const user = await dal.findUser({ email: requestBody.email.toLowerCase() });
+  const user = await dal.findUser({ query: { email: requestBody.email.toLowerCase() } });
 
   checkIfEmailExists(user);
   await checkIfPasswordsMatch(user.password, requestBody.password);
@@ -210,7 +210,7 @@ export const completeTwoFactorAuthentication = async ({ userId, requestBody }) =
 
   const token = requestBody.token;
   const query = { _id: userId };
-  const user = await dal.findUser(query);
+  const user = await dal.findUser({ query });
 
   checkIfUserAccountExists(user);
   checkIfTokenIsValid(user, token);
