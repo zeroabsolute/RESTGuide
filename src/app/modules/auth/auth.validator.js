@@ -3,7 +3,7 @@ import Joi from 'joi';
 import { BadRequest } from '../../utils/error';
 import { passwordRegex } from '../../constants/validation';
 
-export const validateUserSignUpRequest = (input) => {
+export const validateUserSignUpRequest = ({ input }) => {
   const schema = Joi.object().keys({
     email: Joi.string().email().required(),
     password: Joi.string().regex(passwordRegex).required(),
@@ -19,7 +19,7 @@ export const validateUserSignUpRequest = (input) => {
   }
 };
 
-export const validateResendConfirmationEmailRequest = (input) => {
+export const validateResendConfirmationEmailRequest = ({ input }) => {
   const schema = Joi.object().keys({
     email: Joi.string().email().required(),
     redirectUrl: Joi.string().uri().required(),
@@ -32,7 +32,7 @@ export const validateResendConfirmationEmailRequest = (input) => {
   }
 };
 
-export const validateConfirmAccountRequest = (input) => {
+export const validateConfirmAccountRequest = ({ input }) => {
   const schema = Joi.object().keys({
     token: Joi.string().required(),
   });
@@ -44,7 +44,7 @@ export const validateConfirmAccountRequest = (input) => {
   }
 };
 
-export const validateLogInRequest = (input) => {
+export const validateLogInRequest = ({ input }) => {
   const schema = Joi.object().keys({
     email: Joi.string().email().required(),
     password: Joi.string().required(),
@@ -57,7 +57,7 @@ export const validateLogInRequest = (input) => {
   }
 };
 
-export const validateResetPasswordRequest = (input) => {
+export const validateResetPasswordRequest = ({ input }) => {
   const schema = Joi.object().keys({
     email: Joi.string().email().required(),
     redirectUrl: Joi.string().uri().required(),
@@ -70,7 +70,7 @@ export const validateResetPasswordRequest = (input) => {
   }
 };
 
-export const validatePasswordUpdateRequest = (input) => {
+export const validatePasswordUpdateRequest = ({ input }) => {
   const schema = Joi.object().keys({
     token: Joi.string().required(),
     password: Joi.string().regex(passwordRegex).required(),
@@ -83,7 +83,7 @@ export const validatePasswordUpdateRequest = (input) => {
   }
 };
 
-export const validateCompleteTwoFactorAuthRequest = (input) => {
+export const validateCompleteTwoFactorAuthRequest = ({ input }) => {
   const schema = Joi.object().keys({
     token: Joi.string().required(),
   });
@@ -95,7 +95,7 @@ export const validateCompleteTwoFactorAuthRequest = (input) => {
   }
 };
 
-export const validateVerifyTwoFactorAuthTokenRequest = (input) => {
+export const validateVerifyTwoFactorAuthTokenRequest = ({ input }) => {
   const schema = Joi.object().keys({
     token: Joi.string().required(),
   });
