@@ -189,8 +189,8 @@ export const resetPassword = async ({ requestBody }) => {
 
 
 export const initTwoFactorAuthentication = async ({ userId }) => {
-  const query = { cuid: userId };
-  const user = await dal.findUser(query);
+  const query = { _id: userId };
+  const user = await dal.findUser({ query });
 
   checkIfUserAccountExists(user);
 
@@ -209,7 +209,7 @@ export const completeTwoFactorAuthentication = async ({ userId, requestBody }) =
   validator.validateCompleteTwoFactorAuthRequest({ input: requestBody });
 
   const token = requestBody.token;
-  const query = { cuid: userId };
+  const query = { _id: userId };
   const user = await dal.findUser(query);
 
   checkIfUserAccountExists(user);
@@ -238,7 +238,7 @@ export const verifyTwoFactorAuthToken = async (userId, requestParams) => {
   validator.validateVerifyTwoFactorAuthTokenRequest({ input: requestParams });
 
   const token = requestParams.token;
-  const user = await dal.findUserById({ _id: userId });
+  const user = await dal.findUser({ query: { _id: userId } });
 
   checkIfUserAccountExists(user);
   checkIfTwoFactorAuthIsActivated(user);
