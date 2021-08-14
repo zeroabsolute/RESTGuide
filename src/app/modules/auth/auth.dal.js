@@ -5,6 +5,11 @@ export const findUser = async ({ query }) => {
   return result;
 };
 
+export const findUserById = async ({ _id }) => {
+  const result = await User.findById(_id);
+  return result;
+};
+
 export const createUser = async ({ content }) => {
   const result = await User.create(content);
   return result;

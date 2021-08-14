@@ -56,7 +56,9 @@ export const resetPassword = async (req, res, next) => {
 
 export const initTwoFactorAuthentication = async (req, res, next) => {
   try {
-    const result = await service.initTwoFactorAuthentication({ userId: req.user._id });
+    const result = await service.initTwoFactorAuthentication({
+      userId: req.user._id,
+    });
     res.status(200).send(result);
   } catch (e) {
     next(e);

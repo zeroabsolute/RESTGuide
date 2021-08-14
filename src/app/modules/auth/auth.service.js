@@ -1,332 +1,252 @@
 import Bcrypt from 'bcryptjs';
 import Crypto from 'crypto';
 
-import User from '../../modules/auth/user.model';
+import * as validator from './auth.validator';
+import * as dal from './auth.dal';
+import * as helpers from './auth.helpers';
+import * as twoFactorAuth from '../../config/authentication/two_factor_auth';
 import errors from '../../constants/errors';
 import confirmationLevels from '../../constants/confirmation_levels';
 import { createToken } from '../../config/authentication/jwt';
-import * as helpers from './auth.helpers';
-import * as twoFactorAuth from '../../config/authentication/two_factor_auth';
 import {
   NotAuthenticated,
   NotFound,
   UnprocessableEntity,
-  InternalError,
 } from '../../utils/error';
 
-/**
- * User registration
- */
 
-export const registerUser = async (req, res, next) => {
-  try {
-    // Check for duplicate emails
-    const result = await User.findOne({ email: req.body.email.toLowerCase() });
+export const registerUser = async ({ requestBody }) => {
+  validator.validateUserSignUpRequest({ input: requestBody });
 
-    if (result) {
-      next(new UnprocessableEntity(errors.DUPLICATE_EMAILS));
+  const userWithTheSameEmail = await dal.findUser({
+    query: {
+      email: requestBody.email.toLowerCase(),
+    },
+  });
 
-      return;
-    }
-
-    // Store user
-    const salt = await Bcrypt.genSalt();
-    const hashedPassword = await Bcrypt.hash(req.body.password, salt);
-    const body = new User({
-      email: req.body.email.toLowerCase(),
-      password: hashedPassword,
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      confirmationToken: Crypto.randomBytes(32).toString('hex'),
-      confirmationLevel: confirmationLevels.PENDING,
-      isAdmin: false,
-      twoFactorAuth: { active: false },
-    });
-    const createdUser = await body.save();
-
-    // Send confirmation
-    helpers.sendConfirmationEmail(createdUser, req.body.redirectUrl);
-
-    res.sendStatus(204);
-  } catch (e) {
-    next(new InternalError(e));
+  if (userWithTheSameEmail) {
+    throw new UnprocessableEntity(errors.DUPLICATE_EMAILS);
   }
+
+  const salt = await Bcrypt.genSalt();
+  const hashedPassword = await Bcrypt.hash(requestBody.password, salt);
+  const newUserBody = {
+    email: requestBody.email.toLowerCase(),
+    password: hashedPassword,
+    firstName: requestBody.firstName,
+    lastName: requestBody.lastName,
+    confirmationToken: Crypto.randomBytes(32).toString('hex'),
+    confirmationLevel: confirmationLevels.PENDING,
+    isAdmin: false,
+    twoFactorAuth: { active: false },
+  };
+  const createdUser = await dal.createUser({ content: newUserBody });
+
+  helpers.sendConfirmationEmail({
+    user: createdUser,
+    redirectUrl: requestBody.redirectUrl,
+  });
+
+  return createdUser;
 };
 
-/**
- * Resend confirmation email.
- */
 
-export const resendConfirmationEmail = async (req, res, next) => {
-  try {
-    const query = {
-      confirmationLevel: confirmationLevels.PENDING,
-      email: req.body.email.toLowerCase(),
-    };
-    const update = {
-      confirmationToken: Crypto.randomBytes(32).toString('hex'),
-    };
-    const result = await User.findOneAndUpdate(query, update);
+export const resendConfirmationEmail = async ({ requestBody }) => {
+  validator.validateResendConfirmationEmailRequest({ input: requestBody });
 
-    if (!result) {
-      next(new NotFound(errors.USER_NOT_FOUND_OR_ACCOUNT_CONFIRMED));
+  const query = {
+    confirmationLevel: confirmationLevels.PENDING,
+    email: requestBody.email.toLowerCase(),
+  };
+  const update = {
+    confirmationToken: Crypto.randomBytes(32).toString('hex'),
+  };
+  const updatedUser = await dal.updateUser({
+    query,
+    content: update,
+  });
 
-      return;
-    }
-
-    await helpers.sendConfirmationEmail(
-      result,
-      req.body.redirectUrl
-    );
-
-    res.sendStatus(204);
-  } catch (e) {
-    next(new InternalError(e));
+  if (!updatedUser) {
+    throw new NotFound(errors.USER_NOT_FOUND);
   }
+
+  await helpers.sendConfirmationEmail({
+    user: updatedUser,
+    redirectUrl: requestBody.redirectUrl,
+  });
+
+  return updatedUser;
 };
 
-/**
- * Confirm account
- */
 
-export const confirmAccount = async (req, res, next) => {
-  try {
-    const query = {
-      confirmationLevel: confirmationLevels.PENDING,
-      confirmationToken: req.query.token,
-    };
-    const update = {
-      confirmationToken: Crypto.randomBytes(32).toString('hex'),
-      confirmationLevel: confirmationLevels.CONFIRMED,
-    };
-    const result = await User.findOneAndUpdate(query, update);
+export const confirmAccount = async ({ requestParams }) => {
+  validator.validateConfirmAccountRequest({ input: requestParams });
 
-    if (!result) {
-      next(new NotFound(errors.USER_NOT_FOUND_OR_ACCOUNT_CONFIRMED));
+  const query = {
+    confirmationLevel: confirmationLevels.PENDING,
+    confirmationToken: requestParams.token,
+  };
+  const update = {
+    confirmationToken: Crypto.randomBytes(32).toString('hex'),
+    confirmationLevel: confirmationLevels.CONFIRMED,
+  };
+  const updatedUser = await dal.updateUser({
+    query,
+    content: update,
+  });
 
-      return;
-    }
-
-    res.sendStatus(204);
-  } catch (e) {
-    next(new InternalError(e));
+  if (!updatedUser) {
+    throw new NotFound(errors.USER_NOT_FOUND_OR_ACCOUNT_CONFIRMED);
   }
+
+  return updatedUser;
 };
 
-/**
- * Log in
- */
 
-export const logIn = async (req, res, next) => {
-  try {
-    const result = await User.findOne({ email: req.body.email.toLowerCase() });
+export const logIn = async ({ requestBody }) => {
+  validator.validateLogInRequest({ input: requestBody });
 
-    // Check for email
-    if (!result) {
-      next(new NotAuthenticated(errors.USER_NOT_FOUND));
+  const user = await dal.findUser({ email: requestBody.email.toLowerCase() });
 
-      return;
-    }
+  checkIfEmailExists(user);
+  await checkIfPasswordsMatch(user.password, requestBody.password);
+  checkIfUserAccountIsNotConfirmed(user.confirmationLevel);
 
-    // Check for password
-    const existingPassword = result.password;
-    const passwordsMatch = await Bcrypt.compare(req.body.password, existingPassword);
+  const sessionToken = createToken(user);
+  const userWithToken = {
+    ...user.toJSON(),
+    token: sessionToken,
+  };
 
-    if (!passwordsMatch) {
-      next(new NotAuthenticated(errors.INVALID_PASSWORD));
+  delete userWithToken.password;
+  delete userWithToken.twoFactorAuth.secret;
 
-      return;
-    }
-
-    // Check for account confirmation
-    if (result.confirmationLevel === confirmationLevels.PENDING) {
-      next(new NotAuthenticated(errors.ACCOUNT_NOT_CONFIRMED));
-
-      return;
-    }
-
-    // If everything is OK, generate a jwt and return the user object
-    const sessionToken = createToken(result);
-    const objectToReturn = {
-      ...result.toJSON(),
-      token: sessionToken
-    };
-
-    delete objectToReturn.password;
-    delete objectToReturn.twoFactorAuth.secret;
-
-    res.status(200).json(objectToReturn);
-  } catch (e) {
-    next(new InternalError(e));
-  }
+  return userWithToken;
 };
 
-/**
- * Request new password
- */
-
-export const requestNewPassword = async (req, res, next) => {
-  try {
-    const confirmationToken = Crypto.randomBytes(32).toString('hex');
-    const result = await User.findOneAndUpdate(
-      { email: req.body.email.toLowerCase() },
-      { confirmationToken },
-      { new: true },
-    );
-
-    if (!result) {
-      next(new NotFound(errors.USER_NOT_FOUND));
-
-      return;
-    }
-
-    await helpers.sendEmailWithResetPasswordLink(
-      result,
-      req.body.redirectUrl
-    );
-
-    res.sendStatus(204);
-  } catch (e) {
-    next(new InternalError(e));
+function checkIfEmailExists(user) {
+  if (!user) {
+    throw new NotAuthenticated(errors.USER_NOT_FOUND);
   }
+}
+
+async function checkIfPasswordsMatch(existingPassword, givenPassword) {
+  const passwordsMatch = await Bcrypt.compare(givenPassword, existingPassword);
+
+  if (!passwordsMatch) {
+    throw new NotAuthenticated(errors.INVALID_PASSWORD);
+  }
+}
+
+function checkIfUserAccountIsNotConfirmed(currentConfirmationLevel) {
+  const accountNotConfirmed = currentConfirmationLevel === confirmationLevels.PENDING;
+
+  if (accountNotConfirmed) {
+    throw new NotAuthenticated(errors.ACCOUNT_NOT_CONFIRMED);
+  }
+}
+
+
+export const requestNewPassword = async ({ requestBody }) => {
+  validator.validateResetPasswordRequest({ input: requestBody });
+
+  const confirmationToken = Crypto.randomBytes(32).toString('hex');
+  const query = { email: requestBody.email.toLowerCase() };
+  const update = { confirmationToken };
+  const updatedUser = await dal.updateUser({
+    query,
+    content: update,
+  });
+
+  checkIfUserAccountExists(updatedUser);
+  await helpers.sendEmailWithResetPasswordLink({
+    user: updatedUser,
+    redirectUrl: requestBody.redirectUrl,
+  });
 };
 
-/**
- * Reset password
- */
-
-export const resetPassword = async (req, res, next) => {
-  try {
-    const salt = await Bcrypt.genSalt();
-    const hashedPassword = await Bcrypt.hash(req.body.password, salt);
-    const result = await User.findOneAndUpdate(
-      { confirmationToken: req.body.token },
-      { password: hashedPassword }
-    );
-
-    if (!result) {
-      next(new NotFound(errors.USER_NOT_FOUND));
-
-      return;
-    }
-
-    res.sendStatus(204);
-  } catch (e) {
-    next(new InternalError(e));
+function checkIfUserAccountExists(user) {
+  if (!user) {
+    throw new NotFound(errors.USER_NOT_FOUND);
   }
+}
+
+
+export const resetPassword = async ({ requestBody }) => {
+  validator.validatePasswordUpdateRequest({ input: requestBody });
+
+  const salt = await Bcrypt.genSalt();
+  const hashedPassword = await Bcrypt.hash(requestBody.password, salt);
+  const query = { confirmationToken: requestBody.token };
+  const update = { password: hashedPassword };
+  const updatedUser = await dal.updateUser({
+    query,
+    content: update,
+  });
+
+  checkIfUserAccountExists(updatedUser);
 };
 
-/**
- * Handler for setting up two factor authentication.
- * 1) A secret key is generated and stored in the user collection (but not active yet).
- * 2) A QR Code is generated, based on the secret key.
- * 3) The image base64 of the QR Code is sent back to the user.
- */
 
-export const initTwoFactorAuthentication = async (req, res, next) => {
-  try {
-    // Get user object 
-    const userResult = await User.findById(req.user._id);
+export const initTwoFactorAuthentication = async ({ userId }) => {
+  const query = { cuid: userId };
+  const user = await dal.findUser(query);
 
-    if (!userResult) {
-      next(new NotFound(errors.USER_NOT_FOUND));
+  checkIfUserAccountExists(user);
 
-      return;
-    }
+  const secret = twoFactorAuth.generateSecret(user.email);
+  const qrCodeBase64 = await twoFactorAuth.generateQRCode(secret);
+  await dal.updateUser({
+    query,
+    content: { 'twoFactorAuth.secret': secret },
+  });
 
-    // Generate secret
-    const secret = twoFactorAuth.generateSecret(userResult.email);
-    const qrCodeBase64 = await twoFactorAuth.generateQRCode(secret);
-    const update = { 'twoFactorAuth.secret': secret };
-    const userUpdateResult = await User.findByIdAndUpdate(req.user._id, update);
-
-    if (!userUpdateResult) {
-      next(new NotFound(errors.USER_NOT_FOUND));
-
-      return;
-    }
-
-    res.status(200).send(qrCodeBase64);
-  } catch (e) {
-    next(new InternalError(e));
-  }
+  return qrCodeBase64;
 };
 
-/**
- * Handler for completing two factor authentication.
- * 1) A token (string) is received as a body argument.
- * 2) The token is validated against the stored secret.
- * 3) If it matches, the secret key for the user is verified (active becomes true).
- */
 
-export const completeTwoFactorAuthentication = async (req, res, next) => {
-  try {
-    const userId = req.user._id;
-    const token = req.body.token;
-    const userResult = await User.findById(userId);
+export const completeTwoFactorAuthentication = async ({ userId, requestBody }) => {
+  validator.validateCompleteTwoFactorAuthRequest({ input: requestBody });
 
-    if (!userResult) {
-      next(new NotFound(errors.USER_NOT_FOUND));
+  const token = requestBody.token;
+  const query = { cuid: userId };
+  const user = await dal.findUser(query);
 
-      return;
-    }
+  checkIfUserAccountExists(user);
+  checkIfTokenIsValid(user, token);
 
-    const tokenIsValid = twoFactorAuth.validateToken(
-      userResult.twoFactorAuth.secret,
-      token
-    );
-
-    if (!tokenIsValid) {
-      next(new UnprocessableEntity(errors.INVALID_2FA_TOKEN));
-
-      return;
-    }
-
-    const update = { 'twoFactorAuth.active': true };
-
-    await User.findByIdAndUpdate(userId, update);
-    res.sendStatus(204);
-  } catch (e) {
-    next(new InternalError(e));
-  }
+  const update = { 'twoFactorAuth.active': true };
+  await dal.updateUser({
+    query,
+    content: update,
+  });
 };
 
-/**
- * Handler for verifying a 2FA token.
- * 1) A token (string) is received as a query parameter.
- * 2) The token is validated against the stored user secret.
- */
+function checkIfTokenIsValid(user, token) {
+  const tokenIsNotValid = twoFactorAuth.validateToken(
+    user.twoFactorAuth.secret,
+    token,
+  );
 
-export const verifyTwoFactorAuthToken = async (req, res, next) => {
-  try {
-    const token = req.query.token;
-    const userResult = await User.findById(req.user._id);
-
-    if (!userResult) {
-      next(new NotFound(errors.USER_NOT_FOUND));
-
-      return;
-    }
-
-    if (!userResult.twoFactorAuth.active) {
-      next(new UnprocessableEntity(errors.NO_2FA));
-
-      return;
-    }
-
-    const tokenIsValid = twoFactorAuth.validateToken(
-      userResult.twoFactorAuth.secret,
-      token
-    );
-
-    if (!tokenIsValid) {
-      next(new UnprocessableEntity(errors.INVALID_2FA_TOKEN));
-
-      return;
-    }
-
-    res.sendStatus(200);
-  } catch (e) {
-    next(new InternalError(e));
+  if (tokenIsNotValid) {
+    throw new UnprocessableEntity(errors.INVALID_2FA_TOKEN);
   }
+}
+
+
+export const verifyTwoFactorAuthToken = async (userId, requestParams) => {
+  validator.validateVerifyTwoFactorAuthTokenRequest({ input: requestParams });
+
+  const token = requestParams.token;
+  const user = await dal.findUserById({ _id: userId });
+
+  checkIfUserAccountExists(user);
+  checkIfTwoFactorAuthIsActivated(user);
+  checkIfTokenIsValid(user, token);
 };
+
+function checkIfTwoFactorAuthIsActivated(user) {
+  if (!user.twoFactorAuth.active) {
+    throw new UnprocessableEntity(errors.NO_2FA);
+  }
+}
