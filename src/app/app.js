@@ -1,7 +1,9 @@
 import Express from 'express';
-import BodyParser from 'body-parser';
 import Cors from 'cors';
 import SwaggerUI from 'swagger-ui-express';
+import SwaggerJsdoc from 'swagger-jsdoc';
+import Path from 'path';
+import YAML from 'yamljs';
 import Passport from 'passport';
 import ExpressBunyanLogger from 'express-bunyan-logger';
 
@@ -25,21 +27,29 @@ setTimeout(() => {
 }, 500);
 
 // Express app config
-app.use(BodyParser.json({ limit: '10mb' }));
-app.use(BodyParser.urlencoded({ limit: '10mb', extended: false }));
+app.use(Express.json({ limit: '10mb' }));
+app.use(Express.urlencoded({ limit: '10mb', extended: false }));
 app.use(Cors());
 app.use(Passport.initialize());
 app.use(ExpressBunyanLogger(expressLoggerConfig));
 app.use("/api/v1", routes);
 
-const swaggerDocument = require('../docs/openapi.json');
+// Setup docs
+const docsFilePath = Path.resolve(__dirname, '../docs/openapi.yaml');
+const jsonDocsFile = YAML.load(docsFilePath);
+const docs = SwaggerJsdoc({
+  swaggerDefinition: jsonDocsFile,
+  apis: ['./modules/**/*.js'],
+});
 
 app.use(
   '/api/swagger',
   basicAuth(config.apiDocsUsername, config.apiDocsPassword, true),
   SwaggerUI.serve,
-  SwaggerUI.setup(swaggerDocument, false, { docExpansion: 'none' })
+  SwaggerUI.setup(docs, false, { docExpansion: 'none' }),
 );
+
+// Error handling
 app.use(errorHandler);
 
 // Catch all unhandled errors and log them

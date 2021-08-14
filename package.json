@@ -32,7 +32,6 @@
     "@hapi/joi-date": "^2.0.1",
     "@sendgrid/mail": "^7.4.6",
     "bcryptjs": "^2.4.3",
-    "body-parser": "^1.19.0",
     "bunyan": "^1.8.15",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
@@ -54,8 +53,10 @@
     "qrcode": "^1.4.4",
     "sinon": "^11.1.2",
     "speakeasy": "^2.0.0",
+    "swagger-jsdoc": "^6.1.0",
     "swagger-ui-express": "^4.1.6",
-    "web-push": "^3.4.5"
+    "web-push": "^3.4.5",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.8",
