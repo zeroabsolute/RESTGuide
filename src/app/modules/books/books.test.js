@@ -4,12 +4,10 @@ import ChaiHTTP from 'chai-http';
 import Crypto from 'crypto';
 import Faker from 'faker';
 
-import server from '../index';
-import User from '../app/modules/auth/user.model';
-import Author from '../app/modules/authors/authors.model';
-import Book from '../app/modules/books/books.model';
-import { createToken } from '../app/config/authentication/jwt';
-import confirmationLevels from '../app/constants/confirmation_levels';
+import server from '../../../index';
+import * as dal from './books.dal';
+import { createToken } from '../../config/authentication/jwt';
+import confirmationLevels from '../../constants/confirmation_levels';
 
 Chai.use(ChaiHTTP);
 
@@ -23,43 +21,45 @@ describe(`Test "Books" endpoints`, () => {
   const genre = Faker.random.word();
 
   before(async () => {
-    await User.deleteMany({});
-    await Author.deleteMany({});
-    await Book.deleteMany({});
+    await dal.deleteUsers({ query: {} });
+    await dal.deleteAuthors({ query: {} });
+    await dal.deleteBooks({ query: {} });
 
-    const user = new User({
-      firstName: Faker.name.firstName(),
-      lastName: Faker.name.lastName(),
-      email: Faker.internet.email().toLowerCase(),
-      password: Faker.internet.password(),
-      confirmationLevel: confirmationLevels.CONFIRMED,
-      confirmationToken: Crypto.randomBytes(32).toString('hex'),
-      twoFactorAuth: { active: true },
-      isAdmin: false
+    createdUser = await dal.createUser({
+      content: {
+        firstName: Faker.name.firstName(),
+        lastName: Faker.name.lastName(),
+        email: Faker.internet.email().toLowerCase(),
+        password: Faker.internet.password(),
+        confirmationLevel: confirmationLevels.CONFIRMED,
+        confirmationToken: Crypto.randomBytes(32).toString('hex'),
+        twoFactorAuth: { active: true },
+        isAdmin: false
+      },
     });
-    const admin = new User({
-      firstName: Faker.name.firstName(),
-      lastName: Faker.name.lastName(),
-      email: Faker.internet.email().toLowerCase(),
-      password: Faker.internet.password(),
-      confirmationLevel: confirmationLevels.CONFIRMED,
-      confirmationToken: Crypto.randomBytes(32).toString('hex'),
-      twoFactorAuth: { active: true },
-      isAdmin: true
-    });
-
-    await admin.save();
-    createdUser = await user.save();
-    userToken = `Bearer ${createToken(user)}`;
-    adminToken = `Bearer ${createToken(admin)}`;
-
-    const author = new Author({
-      firstName: Faker.name.firstName(),
-      lastName: Faker.name.lastName(),
-      genres: [Faker.random.word()],
+    const createdAdmin = await dal.createUser({
+      content: {
+        firstName: Faker.name.firstName(),
+        lastName: Faker.name.lastName(),
+        email: Faker.internet.email().toLowerCase(),
+        password: Faker.internet.password(),
+        confirmationLevel: confirmationLevels.CONFIRMED,
+        confirmationToken: Crypto.randomBytes(32).toString('hex'),
+        twoFactorAuth: { active: true },
+        isAdmin: true
+      },
     });
 
-    createdAuthor = await author.save();
+    userToken = `Bearer ${createToken(createdUser)}`;
+    adminToken = `Bearer ${createToken(createdAdmin)}`;
+
+    createdAuthor = await dal.createAuthor({
+      content: {
+        firstName: Faker.name.firstName(),
+        lastName: Faker.name.lastName(),
+        genres: [Faker.random.word()],
+      },
+    });
   });
 
   /**
@@ -198,7 +198,7 @@ describe(`Test "Books" endpoints`, () => {
       .patch(`/api/v1/books/${createdBook._id}`)
       .set('authorization', adminToken)
       .send({ title: newTitle });
-    const updatedBook = await Book.findById(createdBook._id);
+    const updatedBook = await dal.findBook({ query: { _id: createdBook._id } });
 
     Chai.expect(response.status).to.equal(204);
     Chai.expect(updatedBook.toJSON().title).to.equal(newTitle);
@@ -212,7 +212,7 @@ describe(`Test "Books" endpoints`, () => {
     const response = await Chai.request(server)
       .post(`/api/v1/books/${createdBook._id}/images/bulk`)
       .set('authorization', adminToken)
-      .attach('images', Path.resolve(__dirname, `./samples/4.jpg`));
+      .attach('images', Path.resolve(__dirname, `../../../tests/samples/4.jpg`));
 
     Chai.expect(response.status).to.equal(500);
   });
@@ -221,9 +221,9 @@ describe(`Test "Books" endpoints`, () => {
     const response = await Chai.request(server)
       .post(`/api/v1/books/${createdBook._id}/images/bulk`)
       .set('authorization', adminToken)
-      .attach('images', Path.resolve(__dirname, `./samples/1.jpeg`))
-      .attach('images', Path.resolve(__dirname, `./samples/2.jpg`))
-      .attach('images', Path.resolve(__dirname, `./samples/3.pdf`));
+      .attach('images', Path.resolve(__dirname, `../../../tests/samples/1.jpeg`))
+      .attach('images', Path.resolve(__dirname, `../../../tests/samples/2.jpg`))
+      .attach('images', Path.resolve(__dirname, `../../../tests/samples/3.pdf`));
 
     Chai.expect(response.status).to.equal(200);
     Chai.expect(response.body).to.be.an('array').of.length(2);
@@ -248,7 +248,7 @@ describe(`Test "Books" endpoints`, () => {
     const response = await Chai.request(server)
       .delete(`/api/v1/books/${createdBook._id}/images/${createdImages[0].result._id}`)
       .set('authorization', adminToken);
-    const updatedBook = await Book.findById(createdBook._id);
+    const updatedBook = await dal.findBook({ query: { _id: createdBook._id } });
 
     Chai.expect(response.status).to.equal(204);
     Chai.expect(updatedBook.images).to.be.an('array').of.length(1);
@@ -258,7 +258,7 @@ describe(`Test "Books" endpoints`, () => {
     const response = await Chai.request(server)
       .delete(`/api/v1/books/${createdBook._id}/images/${createdImages[1].result._id}`)
       .set('authorization', adminToken);
-    const updatedBook = await Book.findById(createdBook._id);
+    const updatedBook = await dal.findBook({ query: { _id: createdBook._id } });
 
     Chai.expect(response.status).to.equal(204);
     Chai.expect(updatedBook.images).to.be.an('array').of.length(0);
@@ -293,8 +293,8 @@ describe(`Test "Books" endpoints`, () => {
   });
 
   after(async () => {
-    await User.deleteMany({});
-    await Author.deleteMany({});
-    await Book.deleteMany({});
+    await dal.deleteUsers({ query: {} });
+    await dal.deleteAuthors({ query: {} });
+    await dal.deleteBooks({ query: {} });
   });
 });

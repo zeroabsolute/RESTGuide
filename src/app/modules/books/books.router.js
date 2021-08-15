@@ -3,7 +3,6 @@ import Passport from 'passport';
 import Multer from 'multer';
 
 import * as controller from './books.controller';
-import * as authorization from './books.authorization';
 import { multerConfigForMemoryStorage } from '../../config/file_upload';
 
 const router = new Router();

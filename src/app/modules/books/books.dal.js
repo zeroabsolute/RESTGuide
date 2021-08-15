@@ -1,4 +1,6 @@
 import Book from './books.model';
+import User from '../auth/user.model';
+import Author from '../authors/authors.model';
 
 export const findBooks = async ({ query, projection }) => {
   const dbQuery = {};
@@ -26,6 +28,16 @@ export const findBookWithAuthorPayload = async ({ query }) => {
 
 export const createBook = async ({ content }) => {
   const result = await Book.create(content);
+  return result;
+};
+
+export const createUser = async ({ content }) => {
+  const result = await User.create(content);
+  return result;
+};
+
+export const createAuthor = async ({ content }) => {
+  const result = await Author.create(content);
   return result;
 };
 
@@ -69,4 +81,16 @@ export const updateBookAttachments = async ({ query, toAdd, toRemove }) => {
 
 export const deleteOneBook = async ({ query }) => {
   await Book.findOneAndDelete(query);
+};
+
+export const deleteBooks = async ({ query }) => {
+  await Book.deleteMany(query);
+};
+
+export const deleteUsers = async ({ query }) => {
+  await User.deleteMany(query);
+};
+
+export const deleteAuthors = async ({ query }) => {
+  await Author.deleteMany(query);
 };
