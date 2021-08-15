@@ -1,4 +1,4 @@
-import Book from '../../models/book';
+import Book from '../../modules/books/books.model';
 import { InternalError, NotFound } from '../../utils/error';
 import { uploadFile, removeFile } from '../../helpers/files';
 import buckets from '../../constants/buckets';

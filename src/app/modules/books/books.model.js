@@ -1,6 +1,6 @@
 import Mongoose from 'mongoose';
 
-import dbTables from '../constants/db_tables';
+import dbTables from '../../constants/db_tables';
 
 /**
  * @openapi

@@ -1,5 +1,5 @@
 import Author from './authors.model';
-import Book from '../../models/book';
+import Book from '../../modules/books/books.model';
 import User from '../auth/user.model';
 
 export const findAuthor = async ({ query }) => {
