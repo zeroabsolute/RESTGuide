@@ -6,7 +6,7 @@ import Faker from 'faker';
 
 import server from '../index';
 import User from '../app/modules/auth/user.model';
-import Author from '../app/models/author';
+import Author from '../app/modules/authors/authors.model';
 import Book from '../app/models/book';
 import { createToken } from '../app/config/authentication/jwt';
 import confirmationLevels from '../app/constants/confirmation_levels';
