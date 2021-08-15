@@ -6,7 +6,7 @@ import { UnprocessableEntity, NotFound } from '../../utils/error';
 
 
 export const createAuthor = async ({ requestBody, user }) => {
-  validator.validateCreateAuthorRequest({ input: requestBody });
+  validator.validatePostAuthorRequest({ input: requestBody });
   authorization.authorizeWriteRequest({ user });
 
   const existingAuthor = await dal.findAuthor({

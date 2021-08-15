@@ -3,7 +3,6 @@ import Passport from 'passport';
 import Multer from 'multer';
 
 import * as controller from './books.controller';
-import * as validator from './books.validator';
 import * as authorization from './books.authorization';
 import { multerConfigForMemoryStorage } from '../../config/file_upload';
 
@@ -67,9 +66,7 @@ const BASE_ROUTE = `/books`;
 
 router.route(BASE_ROUTE).post(
   Passport.authenticate('jwt', { session: false }),
-  authorization.updateBookAuthorization,
-  validator.createBookValidator,
-  controller.createBook,
+  controller.postBook,
 );
 
 /**
@@ -118,8 +115,7 @@ router.route(BASE_ROUTE).post(
 
 router.route(BASE_ROUTE).get(
   Passport.authenticate('jwt', { session: false }),
-  validator.readBooksValidator,
-  controller.readBooks
+  controller.getBooks,
 );
 
 /**
@@ -163,7 +159,7 @@ router.route(BASE_ROUTE).get(
 
 router.route(`${BASE_ROUTE}/:id`).get(
   Passport.authenticate('jwt', { session: false }),
-  controller.readOneBook
+  controller.getBook,
 );
 
 /**
@@ -222,9 +218,7 @@ router.route(`${BASE_ROUTE}/:id`).get(
 
 router.route(`${BASE_ROUTE}/:id`).patch(
   Passport.authenticate('jwt', { session: false }),
-  authorization.updateBookAuthorization,
-  validator.updateBookValidator,
-  controller.updateBook
+  controller.patchBook,
 );
 
 /**
@@ -261,8 +255,7 @@ router.route(`${BASE_ROUTE}/:id`).patch(
 
 router.route(`${BASE_ROUTE}/:id`).delete(
   Passport.authenticate('jwt', { session: false }),
-  authorization.updateBookAuthorization,
-  controller.deleteBook
+  controller.deleteBook,
 );
 
 /**
@@ -331,9 +324,8 @@ router.route(`${BASE_ROUTE}/:id`).delete(
 
 router.route(`${BASE_ROUTE}/:id/images/bulk`).post(
   Passport.authenticate('jwt', { session: false }),
-  authorization.updateBookAuthorization,
   Multer(multerConfigForMemoryStorage).array('images', 10),
-  controller.uploadImages
+  controller.postMultipleImages,
 );
 
 /**
@@ -376,8 +368,7 @@ router.route(`${BASE_ROUTE}/:id/images/bulk`).post(
 
 router.route(`${BASE_ROUTE}/:bookId/images/:imageId`).delete(
   Passport.authenticate('jwt', { session: false }),
-  authorization.updateBookAuthorization,
-  controller.deleteImage
+  controller.deleteImage,
 );
 
 export default router;

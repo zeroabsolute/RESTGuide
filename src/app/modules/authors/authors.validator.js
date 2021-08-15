@@ -3,7 +3,7 @@ import Joi from 'joi';
 import { BadRequest } from '../../utils/error';
 import { commaSeparatedWords } from '../../constants/validation';
 
-export const validateCreateAuthorRequest = ({ input }) => {
+export const validatePostAuthorRequest = ({ input }) => {
   const schema = Joi.object().keys({
     firstName: Joi.string().required(),
     lastName: Joi.string().required(),

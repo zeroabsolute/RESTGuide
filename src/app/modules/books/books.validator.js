@@ -7,7 +7,7 @@ import datetimeFormats from '../../constants/datetime_formats';
 
 const Joi = BaseJoi.extend(DateJoi);
 
-export const validateCreateBookRequest = ({ input }) => {
+export const validatePostBookRequest = ({ input }) => {
   const schema = Joi.object().keys({
     title: Joi.string().required(),
     author: Joi.string().required(),
