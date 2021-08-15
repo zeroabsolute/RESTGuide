@@ -28,10 +28,10 @@ describe(`Test "Auth" endpoints`, () => {
   });
 
   /**
-   * Endpoint: "POST /auth/registration"
+   * Endpoint: "POST /auth/register"
    */
 
-  it('Test "POST /auth/registration" (Success test case)', async () => {
+  it('Test "POST /auth/register" (Success test case)', async () => {
     const body = {
       firstName: Faker.name.firstName(),
       lastName: Faker.name.lastName(),
@@ -40,13 +40,13 @@ describe(`Test "Auth" endpoints`, () => {
       redirectUrl: Faker.internet.url(),
     };
     const response = await Chai.request(server)
-      .post('/api/v1/auth/registration')
+      .post('/api/v1/auth/register')
       .send(body);
 
     Chai.expect(response.status).to.equal(204);
   });
 
-  it('Test "POST /auth/registration" (Fail test case: Duplicate emails)', async () => {
+  it('Test "POST /auth/register" (Fail test case: Duplicate emails)', async () => {
     const body = {
       firstName: Faker.name.firstName(),
       lastName: Faker.name.lastName(),
@@ -55,7 +55,7 @@ describe(`Test "Auth" endpoints`, () => {
       redirectUrl: Faker.internet.url(),
     };
     const response = await Chai.request(server)
-      .post('/api/v1/auth/registration')
+      .post('/api/v1/auth/register')
       .send(body);
 
     Chai.expect(response.status).to.equal(422);

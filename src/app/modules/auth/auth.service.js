@@ -67,7 +67,7 @@ export const resendConfirmationEmail = async ({ requestBody }) => {
   });
 
   if (!updatedUser) {
-    throw new NotFound(errors.USER_NOT_FOUND);
+    throw new NotFound(errors.USER_NOT_FOUND_OR_ACCOUNT_CONFIRMED);
   }
 
   await helpers.sendConfirmationEmail({
