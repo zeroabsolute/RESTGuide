@@ -7,7 +7,7 @@ import datetimeFormats from '../../constants/datetime_formats';
 
 const Joi = BaseJoi.extend(DateJoi);
 
-export const createBookValidator = (req, _res, next) => {
+export const validateCreateBookRequest = ({ input }) => {
   const schema = Joi.object().keys({
     title: Joi.string().required(),
     author: Joi.string().required(),
@@ -19,16 +19,27 @@ export const createBookValidator = (req, _res, next) => {
       .required(),
   }).required();
 
-  const result = schema.validate(req.body);
+  const result = schema.validate(input);
 
   if (result.error) {
-    return next(new BadRequest(result?.error?.details));
+    throw new BadRequest(result?.error?.details);
   }
-
-  return next();
 };
 
-export const updateBookValidator = (req, _res, next) => {
+export const validateGetBooksRequest = ({ input }) => {
+  const schema = Joi.object().keys({
+    genre: Joi.string(),
+    fields: Joi.string().regex(commaSeparatedWords),
+  });
+
+  const result = schema.validate(input);
+
+  if (result.error) {
+    throw new BadRequest(result?.error?.details);
+  }
+};
+
+export const validatePatchBookRequest = ({ input }) => {
   const schema = Joi.object().keys({
     title: Joi.string(),
     author: Joi.string(),
@@ -39,26 +50,9 @@ export const updateBookValidator = (req, _res, next) => {
       .items(Joi.date().format(datetimeFormats.STANDARD_DATE)),
   }).required();
 
-  const result = schema.validate(req.body);
+  const result = schema.validate(input);
 
   if (result.error) {
-    return next(new BadRequest(result?.error?.details));
+    throw new BadRequest(result?.error?.details);
   }
-
-  return next();
-};
-
-export const readBooksValidator = (req, _res, next) => {
-  const schema = Joi.object().keys({
-    genre: Joi.string(),
-    fields: Joi.string().regex(commaSeparatedWords),
-  });
-
-  const result = schema.validate(req.query);
-
-  if (result.error) {
-    return next(new BadRequest(result?.error?.details));
-  }
-
-  return next();
 };
