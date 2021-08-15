@@ -2,6 +2,48 @@ import Mongoose from 'mongoose';
 
 import dbTables from '../constants/db_tables';
 
+/**
+ * @openapi
+ * 
+ * components:
+ *   schemas:
+ *     Book:
+ *       properties:
+ *         _id:
+ *           type: string
+ *         title:
+ *           type: string
+ *         author:
+ *           type: string
+ *         genre:
+ *           type: string
+ *         pages:
+ *           type: integer
+ *         publications:
+ *           type: array
+ *           items:
+ *             type: string
+ *             format: date
+ *         images:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               _id:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               url:
+ *                 type: string
+ *                 format: uri
+ *         createdAt:
+ *           type: string
+ *           format: datetime
+ *         updatedAt:
+ *           type: string
+ *           format: datetime
+ */
+
 const schema = new Mongoose.Schema(
   {
     title: {
