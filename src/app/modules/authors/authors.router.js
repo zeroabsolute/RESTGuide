@@ -71,9 +71,7 @@ const BASE_ROUTE = `/authors`;
 
 router.route(BASE_ROUTE).post(
   Passport.authenticate('jwt', { session: false }),
-  authorization.updateAuthorAuthorization,
-  validator.createAuthorValidator,
-  controller.createAuthor,
+  controller.postAuthor,
 );
 
 /**
@@ -122,8 +120,7 @@ router.route(BASE_ROUTE).post(
 
 router.route(BASE_ROUTE).get(
   Passport.authenticate('jwt', { session: false }),
-  validator.readAuthorsValidator,
-  controller.readAuthors
+  controller.getAuthors,
 );
 
 /**
@@ -162,7 +159,7 @@ router.route(BASE_ROUTE).get(
 
 router.route(`${BASE_ROUTE}/:id`).get(
   Passport.authenticate('jwt', { session: false }),
-  controller.readOneAuthor
+  controller.getAuthor,
 );
 
 /**
@@ -229,9 +226,7 @@ router.route(`${BASE_ROUTE}/:id`).get(
 
 router.route(`${BASE_ROUTE}/:id`).patch(
   Passport.authenticate('jwt', { session: false }),
-  authorization.updateAuthorAuthorization,
-  validator.updateAuthorValidator,
-  controller.updateAuthor
+  controller.patchAuthor,
 );
 
 /**
@@ -268,8 +263,7 @@ router.route(`${BASE_ROUTE}/:id`).patch(
 
 router.route(`${BASE_ROUTE}/:id`).delete(
   Passport.authenticate('jwt', { session: false }),
-  authorization.updateAuthorAuthorization,
-  controller.deleteAuthor
+  controller.deleteAuthor,
 );
 
 export default router;

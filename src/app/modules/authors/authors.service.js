@@ -1,144 +1,113 @@
-import Author from '../../modules/authors/authors.model';
-import Book from '../../models/book';
+import * as validator from './authors.validator';
+import * as authorization from './authors.authorization';
+import * as dal from './authors.dal';
 import errors from '../../constants/errors';
-import {
-  InternalError,
-  UnprocessableEntity,
-  NotFound,
-} from '../../utils/error';
+import { UnprocessableEntity, NotFound } from '../../utils/error';
 
-/**
- * Create author
- */
 
-export const createAuthor = async (req, res, next) => {
-  try {
-    const existingAuthor = await Author.findOne({
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
+export const createAuthor = async ({ requestBody, user }) => {
+  validator.validateCreateAuthorRequest({ input: requestBody });
+  authorization.authorizeWriteRequest({ user });
+
+  const existingAuthor = await dal.findAuthor({
+    query: {
+      equal: {
+        firstName: requestBody.firstName,
+        lastName: requestBody.lastName,
+      },
+    },
+  });
+
+  if (existingAuthor) {
+    throw new UnprocessableEntity(errors.AUTHOR_EXISTS);
+  }
+
+  const createdAuthor = await dal.createAuthor({ content: requestBody });
+  return createdAuthor;
+};
+
+
+export const readAuthors = async ({ requestParams }) => {
+  validator.validateGetAuthorsRequest({ input: requestParams });
+
+  const query = {};
+  const projection = requestParams?.fields
+    ? requestParams.fields.split(',')
+    : [
+      'firstName',
+      'lastName',
+      'genres',
+      'createdAt',
+      'updatedAt'
+    ];
+
+  if (requestParams?.genres) {
+    query.genres = requestParams.genre;
+  }
+
+  const authors = await dal.findAuthors({ query, projection });
+  return authors;
+};
+
+
+export const readOneAuthor = async ({ authorId }) => {
+  const author = await dal.findAuthor({
+    query: { equal: { _id: authorId } },
+  });
+
+  if (!author) {
+    throw new NotFound();
+  }
+};
+
+
+export const updateAuthor = async ({ authorId, requestBody, user }) => {
+  validator.validatePatchAuthorRequest({ input: requestBody });
+  authorization.authorizeWriteRequest({ user });
+
+  const author = await dal.findAuthor({
+    query: { _id: authorId },
+  });
+
+  if (!author) {
+    throw new NotFound();
+  }
+
+  if (requestBody.firstName || requestBody.lastName) {
+    const newFirstName = requestBody.firstName || author.firstName;
+    const newLastName = requestBody.lastName || author.lastName;
+    const existingAuthor = await dal.findAuthor({
+      query: {
+        equal: {
+          firstName: newFirstName,
+          lastName: newLastName,
+        },
+        notEqual: {
+          _id: authorId,
+        },
+      },
     });
 
     if (existingAuthor) {
-      next(new UnprocessableEntity(errors.AUTHOR_EXISTS));
-
-      return;
+      throw new UnprocessableEntity(errors.AUTHOR_EXISTS);
     }
-
-    const body = new Author({ ...req.body });
-    const result = await body.save();
-
-    res.status(201).json(result);
-  } catch (e) {
-    next(new InternalError(e));
   }
+
+  await dal.updateAuthor({
+    query: { _id: authorId },
+    content: requestBody,
+  });
 };
 
-/**
- * Read authors
- */
 
-export const readAuthors = async (req, res, next) => {
-  try {
-    const query = {};
-    const projection = req.query?.fields
-      ? req.query.fields.split(',')
-      : [
-        'firstName',
-        'lastName',
-        'genres',
-        'createdAt',
-        'updatedAt'
-      ];
+export const deleteAuthor = async ({ user, authorId }) => {
+  authorization.authorizeWriteRequest({ user });
 
-    if (req.query?.genres) {
-      query.genres = req.query.genre;
-    }
+  const deletedAuthor = await dal.deleteOneAuthor({ _id: authorId });
 
-    const result = await Author.find(query, projection);
-
-    res.status(200).json(result);
-  } catch (e) {
-    next(new InternalError(e));
+  if (!deletedAuthor) {
+    throw new NotFound();
   }
-};
 
-/**
- * Read one author
- */
-
-export const readOneAuthor = async (req, res, next) => {
-  try {
-    const result = await Author.findById(req.params.id);
-
-    if (!result) {
-      next(new NotFound());
-
-      return;
-    }
-
-    res.status(200).json(result);
-  } catch (e) {
-    next(new InternalError(e));
-  }
-};
-
-/**
- * Update one author
- */
-
-export const updateAuthor = async (req, res, next) => {
-  try {
-    const author = await Author.findById(req.params.id);
-
-    if (!author) {
-      next(new NotFound());
-
-      return;
-    }
-
-    if (req.body.firstName || req.body.lastName) {
-      const newFirstName = req.body.firstName || author.firstName;
-      const newLastName = req.body.lastName || author.lastName;
-      const query = {
-        firstName: newFirstName,
-        lastName: newLastName,
-        _id: { $ne: author._id },
-      };
-      const existingAuthor = await Author.findOne(query);
-
-      if (existingAuthor) {
-        next(new UnprocessableEntity(errors.AUTHOR_EXISTS));
-
-        return;
-      }
-    }
-
-    const update = req.body;
-    await Author.findByIdAndUpdate(req.params.id, update);
-
-    res.sendStatus(204);
-  } catch (e) {
-    next(new InternalError(e));
-  }
-};
-
-/**
- * Delete one author
- */
-
-export const deleteAuthor = async (req, res, next) => {
-  try {
-    const result = await Author.findByIdAndDelete(req.params.id);
-
-    if (!result) {
-      next(new NotFound());
-
-      return;
-    }
-
-    await Book.deleteMany({ author: req.params.id });
-    res.sendStatus(204);
-  } catch (e) {
-    next(new InternalError(e));
-  }
+  await dal.deleteBooks({ author: authorId });
 };
