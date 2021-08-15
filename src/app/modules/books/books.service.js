@@ -49,7 +49,12 @@ export const readBooks = async ({ requestParams }) => {
 
 
 export const readOneBook = async ({ bookId }) => {
-  const book = await dal.findBookWithAuthorPayload({ _id: bookId });
+  const book = await dal.findBookWithAuthorPayload({ query: { _id: bookId } });
+
+  if (!book) {
+    throw new NotFound();
+  }
+
   return book;
 };
 
@@ -80,7 +85,7 @@ export const updateBook = async ({ bookId, requestBody, user }) => {
 export const deleteBook = async ({ bookId, user }) => {
   authorization.authorizeWriteRequest({ user });
 
-  const deletedBook = await dal.deleteOneBook({ _id: bookId });
+  const deletedBook = await dal.deleteOneBook({ query: { _id: bookId } });
 
   if (!deletedBook) {
     throw new NotFound();

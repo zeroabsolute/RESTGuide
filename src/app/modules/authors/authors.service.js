@@ -58,6 +58,8 @@ export const readOneAuthor = async ({ authorId }) => {
   if (!author) {
     throw new NotFound();
   }
+
+  return author;
 };
 
 
@@ -66,7 +68,7 @@ export const updateAuthor = async ({ authorId, requestBody, user }) => {
   authorization.authorizeWriteRequest({ user });
 
   const author = await dal.findAuthor({
-    query: { _id: authorId },
+    query: { equal: { _id: authorId } },
   });
 
   if (!author) {
@@ -103,7 +105,7 @@ export const updateAuthor = async ({ authorId, requestBody, user }) => {
 export const deleteAuthor = async ({ user, authorId }) => {
   authorization.authorizeWriteRequest({ user });
 
-  const deletedAuthor = await dal.deleteOneAuthor({ _id: authorId });
+  const deletedAuthor = await dal.deleteOneAuthor({ query: { _id: authorId } });
 
   if (!deletedAuthor) {
     throw new NotFound();

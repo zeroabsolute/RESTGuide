@@ -80,7 +80,8 @@ export const updateBookAttachments = async ({ query, toAdd, toRemove }) => {
 };
 
 export const deleteOneBook = async ({ query }) => {
-  await Book.findOneAndDelete(query);
+  const result = await Book.findOneAndDelete(query);
+  return result;
 };
 
 export const deleteBooks = async ({ query }) => {

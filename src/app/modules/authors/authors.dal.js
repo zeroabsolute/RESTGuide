@@ -62,5 +62,6 @@ export const deleteAuthors = async ({ query }) => {
 };
 
 export const deleteOneAuthor = async ({ query }) => {
-  await Author.findOneAndDelete(query);
+  const result = await Author.findOneAndDelete(query);
+  return result;
 };

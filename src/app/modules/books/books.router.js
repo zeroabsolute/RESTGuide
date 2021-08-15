@@ -294,23 +294,23 @@ router.route(`${BASE_ROUTE}/:id`).delete(
  *             application/json:
  *               schema:
  *                 type: array
- *                   items:
- *                     properties:
- *                       status:
- *                         type: string
- *                         enum: ["SUCCESS", "ERROR"]
- *                       result:
- *                         type: object
- *                         properties:
- *                           _id:
- *                             type: string
- *                             description: Only if the upload succeeded
- *                           name:
- *                             type: string
- *                           url:
- *                             type: string
- *                             format: uri
- *                             description: Only if the upload succeeded
+ *                 items:
+ *                   properties:
+ *                     status:
+ *                       type: string
+ *                       enum: ["SUCCESS", "ERROR"]
+ *                     result:
+ *                       type: object
+ *                       properties:
+ *                         _id:
+ *                           type: string
+ *                           description: Only if the upload succeeded
+ *                         name:
+ *                           type: string
+ *                         url:
+ *                           type: string
+ *                           format: uri
+ *                           description: Only if the upload succeeded
  *         401:
  *           $ref: "#/components/responses/401"
  *         403:
