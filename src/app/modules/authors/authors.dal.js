@@ -1,5 +1,6 @@
-import Author from '../../modules/authors/authors.model';
+import Author from './authors.model';
 import Book from '../../models/book';
+import User from '../auth/user.model';
 
 export const findAuthor = async ({ query }) => {
   const dbQuery = {};
@@ -28,6 +29,11 @@ export const findAuthors = async ({ query, projection }) => {
   return result;
 };
 
+export const createUser = async ({ content }) => {
+  const result = await User.create(content);
+  return result;
+};
+
 export const createAuthor = async ({ content }) => {
   const result = await Author.create(content);
   return result;
@@ -45,6 +51,10 @@ export const updateAuthor = async ({ query, content }) => {
 
 export const deleteBooks = async ({ query }) => {
   await Book.deleteMany(query);
+};
+
+export const deleteUsers = async ({ query }) => {
+  await User.deleteMany(query);
 };
 
 export const deleteAuthors = async ({ query }) => {

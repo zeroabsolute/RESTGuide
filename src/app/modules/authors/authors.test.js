@@ -3,12 +3,11 @@ import ChaiHTTP from 'chai-http';
 import Crypto from 'crypto';
 import Faker from 'faker';
 
-import server from '../index';
-import User from '../app/modules/auth/user.model';
-import Author from '../app/modules/authors/authors.model';
-import { createToken } from '../app/config/authentication/jwt';
-import errors from '../app/constants/errors';
-import confirmationLevels from '../app/constants/confirmation_levels';
+import server from '../../../index';
+import * as dal from './authors.dal';
+import { createToken } from '../../config/authentication/jwt';
+import errors from '../../constants/errors';
+import confirmationLevels from '../../constants/confirmation_levels';
 
 Chai.use(ChaiHTTP);
 
@@ -23,42 +22,44 @@ describe(`Test "Authors" endpoints`, () => {
   const genres = [Faker.random.word(), Faker.random.word()];
 
   before(async () => {
-    await User.deleteMany({});
-    await Author.deleteMany({});
+    await dal.deleteUsers({ query: {} });
+    await dal.deleteAuthors({ query: {} });
 
-    const user = new User({
-      firstName: Faker.name.firstName(),
-      lastName: Faker.name.lastName(),
-      email: Faker.internet.email().toLowerCase(),
-      password: Faker.internet.password(),
-      confirmationLevel: confirmationLevels.CONFIRMED,
-      confirmationToken: Crypto.randomBytes(32).toString('hex'),
-      twoFactorAuth: { active: true },
-      isAdmin: false
+    createdUser = await dal.createUser({
+      content: {
+        firstName: Faker.name.firstName(),
+        lastName: Faker.name.lastName(),
+        email: Faker.internet.email().toLowerCase(),
+        password: Faker.internet.password(),
+        confirmationLevel: confirmationLevels.CONFIRMED,
+        confirmationToken: Crypto.randomBytes(32).toString('hex'),
+        twoFactorAuth: { active: true },
+        isAdmin: false
+      },
     });
-    const admin = new User({
-      firstName: Faker.name.firstName(),
-      lastName: Faker.name.lastName(),
-      email: Faker.internet.email().toLowerCase(),
-      password: Faker.internet.password(),
-      confirmationLevel: confirmationLevels.CONFIRMED,
-      confirmationToken: Crypto.randomBytes(32).toString('hex'),
-      twoFactorAuth: { active: true },
-      isAdmin: true
-    });
-
-    await admin.save();
-    createdUser = await user.save();
-    userToken = `Bearer ${createToken(user)}`;
-    adminToken = `Bearer ${createToken(admin)}`;
-
-    const author = new Author({
-      firstName: otherFirstName,
-      lastName,
-      genres: [Faker.random.word()],
+    const createdAdmin = await dal.createUser({
+      content: {
+        firstName: Faker.name.firstName(),
+        lastName: Faker.name.lastName(),
+        email: Faker.internet.email().toLowerCase(),
+        password: Faker.internet.password(),
+        confirmationLevel: confirmationLevels.CONFIRMED,
+        confirmationToken: Crypto.randomBytes(32).toString('hex'),
+        twoFactorAuth: { active: true },
+        isAdmin: true
+      },
     });
 
-    await author.save();
+    userToken = `Bearer ${createToken(createdUser)}`;
+    adminToken = `Bearer ${createToken(createdAdmin)}`;
+
+    await dal.createAuthor({
+      content: {
+        firstName: otherFirstName,
+        lastName,
+        genres: [Faker.random.word()],
+      },
+    });
   });
 
   /**
@@ -201,7 +202,13 @@ describe(`Test "Authors" endpoints`, () => {
       .patch(`/api/v1/authors/${createdAuthor._id}`)
       .set('authorization', adminToken)
       .send({ firstName: newFirstName });
-    const updatedAuthor = await Author.findById(createdAuthor._id);
+    const updatedAuthor = await dal.findAuthor({
+      query: {
+        equal: {
+          _id: createdAuthor._id,
+        },
+      },
+    });
 
     Chai.expect(response.status).to.equal(204);
     Chai.expect(updatedAuthor.toJSON().firstName).to.equal(newFirstName);
@@ -228,7 +235,7 @@ describe(`Test "Authors" endpoints`, () => {
   });
 
   after(async () => {
-    await User.deleteMany({});
-    await Author.deleteMany({});
+    await dal.deleteUsers({ query: {} });
+    await dal.deleteAuthors({ query: {} });
   });
 });
