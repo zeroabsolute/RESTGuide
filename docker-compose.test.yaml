@@ -84,6 +84,8 @@ services:
       MINIO_URL: "minio"
       MINIO_PORT: 9000
       MINIO_EXTERNAL_URL: "http://localhost:9000"
+      WAIT_HOSTS: mongo1:27018
+      WAIT_TIMEOUT: 300
 
   # MinIO
   minio:
