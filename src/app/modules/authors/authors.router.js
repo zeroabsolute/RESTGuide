@@ -2,8 +2,6 @@ import { Router } from 'express';
 import Passport from 'passport';
 
 import * as controller from './authors.controller';
-import * as validator from './authors.validator';
-import * as authorization from './authors.authorization';
 
 const router = new Router();
 const BASE_ROUTE = `/authors`;
