@@ -115,7 +115,7 @@
     "new-cap": "off",
     "new-parens": "error",
     "newline-after-var": "off",
-    "newline-before-return": "error",
+    "newline-before-return": "off",
     "newline-per-chained-call": "off",
     "no-async-promise-executor": "off",
     "no-alert": "error",

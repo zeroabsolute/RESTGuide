@@ -7,14 +7,9 @@
     "**/*.spec.js",
     "**/*.test.js"
   ],
-  "reporter": [
-    "html",
-    "text",
-    "lcov"
-  ],
   "sourceMap": false,
   "check-coverage": true,
-  "branches": 40,
+  "branches": 35,
   "lines": 70,
   "functions": 70,
   "statements": 70,

@@ -25,7 +25,7 @@ services:
     ports:
       - "27018:27018"
     restart: always
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0", "--journal", "--dbpath", "/data/db", "--enableMajorityReadConcern", "false", "--port", "27018" ]
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0", "--journal", "--dbpath", "/data/db", "--port", "27018" ]
     volumes:
       - ./data/mongo/dev/data1/db:/data/db
       - ./data/mongo/dev/data1/configdb:/data/configdb
@@ -38,7 +38,7 @@ services:
     ports:
       - "27019:27019"
     restart: always
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0", "--journal", "--dbpath", "/data/db", "--enableMajorityReadConcern", "false", "--port", "27019" ]
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0", "--journal", "--dbpath", "/data/db", "--port", "27019" ]
     volumes:
       - ./data/mongo/dev/data2/db:/data/db
       - ./data/mongo/dev/data2/configdb:/data/configdb
@@ -51,7 +51,7 @@ services:
     ports:
       - "27020:27020"
     restart: always
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0", "--journal", "--dbpath", "/data/db", "--enableMajorityReadConcern", "false", "--port", "27020" ]
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0", "--journal", "--dbpath", "/data/db", "--port", "27020" ]
     volumes:
       - ./data/mongo/dev/data3/db:/data/db
       - ./data/mongo/dev/data3/configdb:/data/configdb

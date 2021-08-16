@@ -1,6 +1,5 @@
 import Sendgrid from '@sendgrid/mail';
 
-import errors from '../../constants/errors';
 import config from '../var';
 
 Sendgrid.setApiKey(config.mailServiceApiKey);
@@ -31,7 +30,7 @@ export const sendEmail = (params) => {
 
     Sendgrid.send(body, (error, info) => {
       if (error) {
-        reject(errors.emailFailed(error));
+        reject(error);
       } else {
         resolve(info);
       }
