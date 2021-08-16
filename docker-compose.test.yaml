@@ -72,7 +72,7 @@ services:
       context: .
     volumes:
       - /app/node_modules
-      - .:/app
+      - .:/home/node/app
     environment:
       NODE_ENV: test
       MAIL_SERVICE_API_KEY: ${MAIL_SERVICE_API_KEY}
