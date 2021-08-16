@@ -902,21 +902,23 @@ The source code resides in `src`. These are the main files and directories:
   - `constants`: This directory contains all kinds of constants that are used in two or more different modules throughout the application code. Some examples would be: 
 A file with error strings that are returned from the API, a file with database collection names, etc...
   - `helpers`: This directory contains functions that can be reused across multiple modules.
-  - `models`: This directory represents the data layer. Each file includes model declarations and all the related logic for accessing data from the database (e.g. methods, statics, hooks, etc...). 
   - `modules`: This is the main directory, which contains the whole API logic. Each module represents a resource, a collection, or some other logic that is not necessarily related to a resource. For each module, we would have the following files (not all files are necessary in every case, most of them are optional):
-    - `module.router.js`: Router declaration.
-    - `module.authorization.js`: Authorization middlewares for checking if the client has permission to access a resource.
-    - `module.controller.js`: Business logic middlewares.
-    - `module.validator.js`: Middlewares for validating request parameters.
-    - `module.helpers.js`: Helper functions that are used only in their corresponding modules. We would put code here to avoid having huge controller files.
+    - `module.model.js`: Model declaration. Each model that is related to this module, is defined here. We could have zero, one, or more models within the same module. Each model definition would also have the corresponding jsdocs where Swagger schemas are defined.
+    - `module.router.js`: Router declaration. All routes are defined here. Above each route, we would have the corresponding jsdocs where the paths are defined for the Swagger documentation.
+    - `module.authorization.js`: Authorization functions for checking if the client has permission to access a resource.
+    - `module.controller.js`: Express controllers. Controllers get the HTTP request, call the service layer, pass only the necessary arguments to it, and send an HTTP response back to the client.
+    - `module.service.js`: Business logic layer. This would be the most important file within each module. The whole business logic sits here. Service layer gets the necessary arguments from the controller, validates the input, handles authorization, applies business logic, interacts with the database and with all 3rd party services. 
+    - `module.dal.js`: Data access layer. All the data access logic will be written here (e.g. SQL queries, Mongo statements, file operations, or every other method for persisting data).
+    - `module.validator.js`: Functions for validating request parameters.
+    - `module.helpers.js`: Helper functions that are used only in their corresponding modules.
     - `module.constants.js`: Constants that are used only within the module they are declared and not outside it (e.g. some constant value that is used both in the validator and authorization middlewares). 
-    - `module.tests.js`: Unit tests for the module.
+    - `module.tests.js`: Unit, integration and end-to-end tests for the module.
   - `routes`: This directory would ideally contain just two files, one health route and an index file that aggregates all router declarations within the modules directory so that it can be exported and used in the app.js file. 
   - `utils`: This directory is very similar to the "helpers" directory. The only difference is that it contains more general-purpose utilities that are not really dependent on the project but can be reused across projects. A better practice would be to declare these utilities as npm packages.
   - `app.js`: Express app setup and initialization of some services.<br /><br />
-- `docs`: This directory contains the yaml and json files for Swagger. In this example, the documentation is written manually using [Swagger Editor](https://editor.swagger.io/). If another method is used for generating the documentation (e.g. swagger jsdocs), the files in this directory would contain only the reusable part of the documentation and not all of it.<br /><br />
+- `docs`: This directory contains the YAML Swagger definition. The file contains the Swagger configuration and only the reusable part of the documentation, whereas the individual declarations are written in each module using jsdocs syntax.<br /><br />
 - `templates`: This directory contains different template declarations, like email templates (in this sample project ejs templates are used), or pdf or docx templates if our project needs to generate such files automatically. <br /><br />
-- `tests`: Most of the tests should be written where the corresponding components are written (e.g. within the module, like the example above). In this directory, we would put API tests, which are not necessarily linked to only one module. These tests contain little or no mocks at all, so we test the application endpoints in real scenarios. We set up the stack with the database and all the other services, we start the server, and call the endpoints one by one. In the sample application, the only thing which is mocked is the email sending function, to avoid sending unnecessary requests to Sendgrid. In some scenarios, this would be wrong because we might want to test if the integration with the email service works as expected. In this directory, the tests we write are mostly black-box tests. We check the documentation and we form the requests and assertions based on what we see there, without checking the implementation of the endpoints. 
+- `tests`: Most of the tests should be written where the corresponding components are written (e.g. within the module, like the example above). In this directory, we would put API tests, which are not necessarily linked to only one module.
 
 # How to run the sample application
 
