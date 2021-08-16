@@ -71,8 +71,8 @@ services:
       dockerfile: Dockerfile.test
       context: .
     volumes:
-      - /app/node_modules
-      - .:/app
+      - /home/node/node_modules
+      - .:/home/node
     environment:
       NODE_ENV: test
       MAIL_SERVICE_API_KEY: ${MAIL_SERVICE_API_KEY}
