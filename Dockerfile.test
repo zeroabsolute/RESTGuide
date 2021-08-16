@@ -1,12 +1,9 @@
 FROM node:alpine
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.9.0/wait /wait
 RUN chmod +x /wait
-USER node
-ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
-ENV PATH=$PATH:/home/node/.npm-global/bin
-WORKDIR /home/node
-COPY --chown=node:node package.json .
+WORKDIR /app
+COPY package*.json ./
 RUN npm install
-RUN mkdir node_modules/.cache && chmod -R 777 node_modules/.cache
-COPY --chown=node:node . .
+COPY . .
+USER node
 CMD /wait && npm run test:ci
