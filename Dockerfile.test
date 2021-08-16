@@ -1,10 +1,7 @@
 FROM node:alpine
+WORKDIR /app
+COPY . .
+RUN npm install
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.9.0/wait /wait
 RUN chmod +x /wait
-USER node
-WORKDIR /home/node/app
-COPY --chown=node:node package.json .
-COPY --chown=node:node package-lock.json .
-COPY --chown=node:node . .
-RUN npm install
 CMD /wait && npm run test:ci
