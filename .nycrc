@@ -7,11 +7,6 @@
     "**/*.spec.js",
     "**/*.test.js"
   ],
-  "reporter": [
-    "html",
-    "text",
-    "lcov"
-  ],
   "sourceMap": false,
   "check-coverage": true,
   "branches": 35,
