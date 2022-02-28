@@ -46,7 +46,7 @@ export const registerUser = async ({ requestBody }) => {
     user: createdUser,
     redirectUrl: requestBody.redirectUrl,
   });
-
+  console.log(createdUser);
   return createdUser;
 };
 
