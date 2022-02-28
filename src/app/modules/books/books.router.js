@@ -16,6 +16,8 @@ const BASE_ROUTE = `/books`;
  * paths:
  *   /books:
  *     post:
+ *       security:
+ *         - bearerAuth: []
  *       tags:
  *         - Books
  *       summary: Create book (Admin only)
@@ -76,8 +78,10 @@ router.route(BASE_ROUTE).post(
  * paths:
  *   /books:
  *     get:
+ *       security:
+ *         - bearerAuth: []
  *       tags:
- *         - Authors
+ *         - Books
  *       summary: Read books
  *       description: Reads books. Supports search by genre and projected responses.
  *       parameters:
@@ -125,6 +129,8 @@ router.route(BASE_ROUTE).get(
  * paths:
  *   /books/{id}:
  *     get:
+ *       security:
+ *         - bearerAuth: []
  *       tags:
  *         - Books
  *       summary: Read book
@@ -169,6 +175,8 @@ router.route(`${BASE_ROUTE}/:id`).get(
  * paths:
  *   /books/{id}:
  *     patch:
+ *       security:
+ *         - bearerAuth: []
  *       tags:
  *         - Books
  *       summary: Update book (Admin only)
@@ -228,6 +236,8 @@ router.route(`${BASE_ROUTE}/:id`).patch(
  * paths:
  *   /books/{id}:
  *     delete:
+ *       security:
+ *         - bearerAuth: []
  *       tags:
  *         - Books
  *       summary: Delete book (Admin only)
@@ -265,6 +275,8 @@ router.route(`${BASE_ROUTE}/:id`).delete(
  * paths:
  *   /books/{id}/images/bulk:
  *     post:
+ *       security:
+ *         - bearerAuth: []
  *       tags:
  *         - Books
  *       summary: Add book images (Admin only)
@@ -335,6 +347,8 @@ router.route(`${BASE_ROUTE}/:id/images/bulk`).post(
  * paths:
  *   /books/{book_id}/images/{image_id}:
  *     delete:
+ *       security:
+ *         - bearerAuth: []
  *       tags:
  *         - Books
  *       summary: Delete book image (Admin only)

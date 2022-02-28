@@ -14,6 +14,8 @@ const BASE_ROUTE = `/authors`;
  * paths:
  *   /authors:
  *     post:
+ *       security:
+ *         - bearerAuth: []
  *       tags:
  *         - Authors
  *       summary: Create author (Admin only)
@@ -80,6 +82,8 @@ router.route(BASE_ROUTE).post(
  * paths:
  *   /authors:
  *     get:
+ *       security:
+ *         - bearerAuth: []
  *       tags:
  *         - Authors
  *       summary: Read authors
@@ -129,6 +133,8 @@ router.route(BASE_ROUTE).get(
  * paths:
  *   /authors/{id}:
  *     get:
+ *       security:
+ *         - bearerAuth: []
  *       tags:
  *         - Authors
  *       summary: Read author
@@ -168,6 +174,8 @@ router.route(`${BASE_ROUTE}/:id`).get(
  * paths:
  *   /authors/{id}:
  *     patch:
+ *       security:
+ *         - bearerAuth: []
  *       tags:
  *         - Authors
  *       summary: Update author (Admin only)
@@ -235,6 +243,8 @@ router.route(`${BASE_ROUTE}/:id`).patch(
  * paths:
  *   /authors/{id}:
  *     delete:
+ *       security:
+ *         - bearerAuth: []
  *       tags:
  *         - Authors
  *       summary: Delete author (Admin only)
