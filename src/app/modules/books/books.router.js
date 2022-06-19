@@ -294,7 +294,7 @@ router.route(`${BASE_ROUTE}/:id`).delete(
  *             schema:
  *               type: object
  *               properties:
- *                 images::
+ *                 images:
  *                   type: array
  *                   items:
  *                     type: string

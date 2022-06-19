@@ -94,7 +94,8 @@ services:
       - ./data/minio/test:/data
     ports:
       - "9000:9000"
+      - "9001:9001"
     environment:
       MINIO_ACCESS_KEY: "HoXQeYqzORTxLznLEdhI"
       MINIO_SECRET_KEY: "VKcXmMdftliEPqVSsOKk"
-    command: server /data
+    command: server --console-address :9001 /data
